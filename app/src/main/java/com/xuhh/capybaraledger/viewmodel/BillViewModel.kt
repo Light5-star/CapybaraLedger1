@@ -9,8 +9,6 @@ import kotlinx.coroutines.launch
 
 class BillViewModel(private val billRepository: BillRepository) : ViewModel() {
 
-    // 获取所有账单的 LiveData
-    val allBills = billRepository.getAllBillsFlow().asLiveData()
 
     // 插入账单
     fun createBill(bill: Bill) {

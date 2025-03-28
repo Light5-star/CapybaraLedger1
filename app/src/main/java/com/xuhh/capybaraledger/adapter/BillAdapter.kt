@@ -34,11 +34,11 @@ class BillAdapter(
         val bill = getItem(position)
 
         // 设置分类图标
-        val category = Categories.getAllCategories().find { it.name == bill.category }
-        holder.tvIcon.text = (category?.icon ?: "\ue692").toString()
+//        val category = Categories.getAllCategories().find { it.name == bill.category }
+//        holder.tvIcon.text = (category?.icon ?: "\ue692").toString()
 
         // 设置分类名称和备注
-        holder.tvCategory.text = bill.category
+//        holder.tvCategory.text = bill.category
         if (bill.note.isNullOrEmpty()) {
             holder.tvNote.visibility = View.GONE
         } else {

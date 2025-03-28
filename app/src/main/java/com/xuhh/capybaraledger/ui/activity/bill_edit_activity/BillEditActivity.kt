@@ -3,19 +3,19 @@ package com.xuhh.capybaraledger.ui.activity.bill_edit_activity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.adapter.BillAdapter
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
+import com.xuhh.capybaraledger.data.model.Categories
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.ActivityBillEditBinding
 import com.xuhh.capybaraledger.ui.base.BaseActivity
+import com.xuhh.capybaraledger.ui.view.billtypeselect.BillTypeSelectorDialog
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -39,6 +39,7 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         database = AppDatabase.getInstance(this)
         setupToolbar()
         setupLedgerSelector()
+        setupTypeSelector()
         setupAmountInput()
         setupDatePicker()
         setupTimePicker()
@@ -55,6 +56,27 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         }
     }
 
+    private fun setupTypeSelector() {
+        mBinding.rgType.setOnCheckedChangeListener { _, checkedId ->
+            isExpense = checkedId == R.id.rb_expense
+            setupCategorySpinner()
+        }
+    }
+
+    private fun setupCategorySpinner() {
+        val categories = if (isExpense) {
+            Categories.EXPENSE_CATEGORIES
+        } else {
+            Categories.INCOME_CATEGORIES
+        }
+        
+        // 更新UI显示分类
+        if (categories.isNotEmpty()) {
+            currentCategory = categories[0]
+            mBinding.tvCategory.text = currentCategory?.name
+        }
+    }
+
     private fun loadBillData() {
         lifecycleScope.launch {
             try {
@@ -64,14 +86,14 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
 
                 // 在后台线程加载数据
                 val bills = withContext(Dispatchers.IO) {
-                    database.billDao().getBillsByDate(currentDate, ledgerId)
+//                    database.billDao().getBillsByDate(currentDate, ledgerId)
                 }
 
-                Log.d(TAG, "Loaded ${bills.size} bills")
+//                Log.d(TAG, "Loaded ${bills.size} bills")
 
                 // 在主线程更新UI
                 withContext(Dispatchers.Main) {
-                    updateBillList(bills)
+//                    updateBillList(bills)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading bills", e)
@@ -93,8 +115,21 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         return dateFormat.format(Date())
     }
 
-
     private fun loadDefaultLedger() {
+        lifecycleScope.launch {
+            try {
+                val defaultLedger = withContext(Dispatchers.IO) {
+                    database.ledgerDao().getDefaultLedger()
+                }
+                if (defaultLedger != null) {
+                    currentLedger = defaultLedger
+                    mBinding.tvLedger.text = defaultLedger.name
+                    loadBillData()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading default ledger", e)
+            }
+        }
     }
 
     private fun setupToolbar() {
@@ -147,22 +182,8 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
             return
         }
 
-        val bill = Bill(
-            ledgerId = currentLedger!!.id,
-            category = currentCategory!!.name,
-            amount = amount,
-            type = if (isExpense) Bill.TYPE_EXPENSE else Bill.TYPE_INCOME,
-            date = System.currentTimeMillis(),
-            time = System.currentTimeMillis(),
-            note = note.takeIf { it.isNotBlank() },
-            payee = payee.takeIf { it.isNotBlank() }
-        )
-
         lifecycleScope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    database.billDao().insert(bill)
-                }
                 finish()
             } catch (e: Exception) {
             }

@@ -15,13 +15,11 @@ class BillRepository(private val billDao: BillDao) {
 
     // 根据日期和账本 ID 获取账单
     suspend fun getBillsByDate(date: String, ledgerId: Long?) = withContext(Dispatchers.IO) {
-        billDao.getBillsByDate(date, ledgerId)
     }
 
     // 根据月份和账本 ID 获取账单
     suspend fun getBillsByLedgerAndMonth(ledgerId: Long, startDate: String, endDate: String) =
         withContext(Dispatchers.IO) {
-            billDao.getBillsByLedgerAndMonth(ledgerId, startDate, endDate)
         }
 
     // 删除账单
@@ -37,11 +35,7 @@ class BillRepository(private val billDao: BillDao) {
     // 获取支出金额统计
     suspend fun getExpenseAmount(type: Int, startDate: String, endDate: String) =
         withContext(Dispatchers.IO) {
-            billDao.getExpenseAmount(type, startDate, endDate)
         }
 
-    // 获取所有账单的 Flow（用于响应式 UI 更新）
-    fun getAllBillsFlow(): Flow<List<Bill>> {
-        return billDao.getAllBillsFlow()
-    }
+
 }

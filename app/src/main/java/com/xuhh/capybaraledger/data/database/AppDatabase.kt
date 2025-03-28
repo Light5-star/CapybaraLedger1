@@ -7,69 +7,37 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.xuhh.capybaraledger.data.dao.BillDao
+import com.xuhh.capybaraledger.data.dao.CategoryDao
+import com.xuhh.capybaraledger.data.dao.CategoryIconDao
 import com.xuhh.capybaraledger.data.dao.LedgerDao
 import com.xuhh.capybaraledger.data.dao.UserDao
 import com.xuhh.capybaraledger.data.model.Bill
+import com.xuhh.capybaraledger.data.model.Category
+import com.xuhh.capybaraledger.data.model.CategoryIcon
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.data.model.User
+import com.xuhh.capybaraledger.data.model.Categories
+import com.xuhh.capybaraledger.data.model.CategoryIconMapping
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Bill::class, Ledger::class, User::class],
-    version = 5
+    entities = [Bill::class, Ledger::class, User::class, Category::class, CategoryIcon::class],
+    version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun billDao(): BillDao
     abstract fun ledgerDao(): LedgerDao
     abstract fun userDao(): UserDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun categoryIconDao(): CategoryIconDao
 
     companion object {
         private const val TAG = "AppDatabase"
         
         @Volatile
         private var INSTANCE: AppDatabase? = null
-
-        // 定义数据库迁移策略
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // 从版本1迁移到版本2的SQL语句
-                database.execSQL("ALTER TABLE bills ADD COLUMN payee TEXT")
-            }
-        }
-
-        private val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // 从版本2迁移到版本3的SQL语句
-                database.execSQL("ALTER TABLE bills ADD COLUMN note TEXT")
-            }
-        }
-
-        private val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // 从版本3迁移到版本4的SQL语句
-                database.execSQL("ALTER TABLE bills ADD COLUMN time TEXT")
-            }
-        }
-
-        private val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // 创建用户表
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        userId TEXT NOT NULL,
-                        nickname TEXT NOT NULL,
-                        avatar TEXT,
-                        gender INTEGER NOT NULL DEFAULT 0,
-                        birthday INTEGER,
-                        createdAt INTEGER NOT NULL,
-                        updatedAt INTEGER NOT NULL
-                    )
-                """.trimIndent())
-            }
-        }
 
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -78,9 +46,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "BillDatabase.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .addCallback(DatabaseCallback())
-                    .fallbackToDestructiveMigration() // 如果迁移失败，重建数据库
+                    .fallbackToDestructiveMigration() // 如果数据库版本不匹配，重建数据库
                     .build()
                     .also { INSTANCE = it }
             }
@@ -111,6 +78,16 @@ abstract class AppDatabase : RoomDatabase() {
                         sortOrder = 0
                     )
                     database.ledgerDao().insert(defaultLedger)
+
+                    // 创建默认分类
+                    Categories.getAllCategories().forEach { category ->
+                        database.categoryDao().insert(category)
+                    }
+
+                    // 创建默认分类图标
+                    CategoryIconMapping.getAllIcons().values.forEach { icon ->
+                        database.categoryIconDao().insert(icon)
+                    }
                 }
             }
         }

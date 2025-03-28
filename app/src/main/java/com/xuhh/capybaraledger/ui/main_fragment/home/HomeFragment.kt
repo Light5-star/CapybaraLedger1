@@ -56,7 +56,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
     private fun setupRecyclerView() {
         // 回调，用于处理账单点击事件
         val billClickCallback: (Bill) -> Unit = { bill ->
-            Log.d(TAG, "Bill clicked: ${bill.category}")
+
         }
 
         // 创建 BillAdapter 实例
@@ -79,15 +79,9 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
                 
                 // 在后台线程加载数据
                 val bills = withContext(Dispatchers.IO) {
-                    database.billDao().getBillsByDate(currentDate, ledgerId)
                 }
-                
-                Log.d(TAG, "Loaded ${bills.size} bills")
                 
                 // 在主线程更新UI
-                withContext(Dispatchers.Main) {
-                    updateBillList(bills)
-                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading bills", e)
             }

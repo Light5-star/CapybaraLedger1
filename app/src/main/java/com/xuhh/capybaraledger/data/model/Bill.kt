@@ -3,6 +3,7 @@ package com.xuhh.capybaraledger.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 
@@ -17,7 +18,17 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],  // Ledger表的主键
             childColumns = ["ledger_id"], // 当前表的外键列，使用与@ColumnInfo相同的列名
             onDelete = ForeignKey.CASCADE // 当Ledger被删除时，级联删除相关的Bill记录
+        ),
+        ForeignKey(
+            entity = Category::class,
+            parentColumns = ["id"],
+            childColumns = ["category_id"],
+            onDelete = ForeignKey.RESTRICT
         )
+    ],
+    indices = [
+        Index("ledger_id"),
+        Index("category_id")
     ]
 )
 data class Bill(
@@ -25,7 +36,8 @@ data class Bill(
     val id: Long = 0,
     @ColumnInfo("ledger_id")
     val ledgerId: Long,          // 所属账本ID
-    val category: String,        // 分类
+    @ColumnInfo("category_id")
+    val categoryId: Long,        // 分类ID
     val amount: Double,          // 金额
     val type: Int,              // 类型：0支出，1收入
     @ColumnInfo("date")
