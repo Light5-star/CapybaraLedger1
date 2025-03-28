@@ -2,8 +2,11 @@ package com.xuhh.capybaraledger.ui.activity.bill_edit_activity
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import com.xuhh.capybaraledger.R
+import com.xuhh.capybaraledger.adapter.BillAdapter
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
@@ -20,6 +23,8 @@ import java.util.Date
 import java.util.Locale
 
 class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
+    private lateinit var billAdapter: BillAdapter
+    private val TAG = "BillEditActivity"
     private lateinit var database: AppDatabase
     private var currentLedger: Ledger? = null
     private var currentCategory: Category? = null
@@ -41,7 +46,53 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
     }
 
     private fun setupLedgerSelector() {
+        mBinding.tvLedger.setOnClickListener {
+            LedgerSelectorDialog(this) { ledger ->
+                currentLedger = ledger
+                mBinding.tvLedger.text = ledger.name
+                loadBillData()
+            }.show()
+        }
     }
+
+    private fun loadBillData() {
+        lifecycleScope.launch {
+            try {
+                val currentDate = getCurrentDate()
+                val ledgerId = currentLedger?.id ?: 1L
+                Log.d(TAG, "Loading bills for date: $currentDate, ledgerId: $ledgerId")
+
+                // 在后台线程加载数据
+                val bills = withContext(Dispatchers.IO) {
+                    database.billDao().getBillsByDate(currentDate, ledgerId)
+                }
+
+                Log.d(TAG, "Loaded ${bills.size} bills")
+
+                // 在主线程更新UI
+                withContext(Dispatchers.Main) {
+                    updateBillList(bills)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading bills", e)
+            }
+        }
+    }
+
+    private fun updateBillList(bills: List<Bill>) {
+        Log.d(TAG, "Updating UI with ${bills.size} bills")
+        if (bills.isEmpty()) {
+            Log.d(TAG, "Showing empty state")
+        } else {
+            billAdapter.submitList(bills)
+        }
+    }
+
+    private fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+
 
     private fun loadDefaultLedger() {
     }
@@ -51,7 +102,6 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
             finish()
         }
     }
-
 
     private fun setupAmountInput() {
         mBinding.etAmount.addTextChangedListener(object : TextWatcher {
