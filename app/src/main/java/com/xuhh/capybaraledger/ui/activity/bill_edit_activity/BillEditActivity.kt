@@ -1,5 +1,8 @@
 package com.xuhh.capybaraledger.ui.activity.bill_edit_activity
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.icu.util.Calendar
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -30,6 +33,7 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
     private var currentLedger: Ledger? = null
     private var currentCategory: Category? = null
     private var isExpense = true // true为支出，false为收入
+
 
     override fun initBinding(): ActivityBillEditBinding {
         return ActivityBillEditBinding.inflate(layoutInflater)
@@ -150,7 +154,32 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         val currentDate = Date()
         mBinding.tvDate.text = dateFormat.format(currentDate)
         mBinding.tvDate.setOnClickListener {
-            // TODO: 显示日期选择器
+            // 获取当前日期（用于初始化选择器）
+            val calendar = Calendar.getInstance()
+            val initialYear = calendar.get(Calendar.YEAR)
+            val initialMonth = calendar.get(Calendar.MONTH)
+            val initialDay = calendar.get(Calendar.DAY_OF_MONTH)
+
+            // 创建日期选择对话框
+            DatePickerDialog(
+                this, // Context
+                R.style.DateDialogTheme,
+                { _, year, month, dayOfMonth -> // 日期选择回调
+                    // 构造选中的日期
+                    val selectedDate = Calendar.getInstance().apply {
+                        set(year, month, dayOfMonth)
+                    }.time
+
+                    // 更新界面显示
+                    mBinding.tvDate.text = dateFormat.format(selectedDate)
+                },
+                initialYear,   // 默认显示年份
+                initialMonth,  // 默认显示月份（0-11）
+                initialDay     // 默认显示日期
+            ).apply {
+                // 可选：设置最小/最大可选日期（示例）
+                // datePicker.minDate = System.currentTimeMillis() // 限制只能选今天之后的日期
+            }.show()
         }
     }
 
@@ -159,6 +188,29 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         val currentTime = Date()
         mBinding.tvTime.text = timeFormat.format(currentTime)
         mBinding.tvTime.setOnClickListener {
+            // 获取当前时间
+            val calendar = Calendar.getInstance()
+            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            val currentMinute = calendar.get(Calendar.MINUTE)
+
+            // 创建时间选择对话框
+            TimePickerDialog(
+                this, // 上下文
+                R.style.DateDialogTheme,
+                { _, hourOfDay, minute -> // 时间选择回调
+                    // 格式化用户选择的时间
+                    val selectedTime = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        set(Calendar.MINUTE, minute)
+                    }.time
+
+                    // 更新界面显示
+                    mBinding.tvTime.text = timeFormat.format(selectedTime)
+                },
+                currentHour,  // 默认显示小时
+                currentMinute, // 默认显示分钟
+                true // 使用24小时制（false为12小时制）
+            ).show()
         }
     }
 
