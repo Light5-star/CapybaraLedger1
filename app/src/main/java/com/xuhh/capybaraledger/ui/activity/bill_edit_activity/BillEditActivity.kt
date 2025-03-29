@@ -11,13 +11,12 @@ import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.adapter.BillAdapter
 import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.data.database.AppDatabase
-import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
 import com.xuhh.capybaraledger.data.model.Categories
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.ActivityBillEditBinding
 import com.xuhh.capybaraledger.ui.base.BaseActivity
-import com.xuhh.capybaraledger.ui.view.billtypeselect.BillTypeSelectorDialog
+import com.xuhh.capybaraledger.ui.view.billtypeselect.CategoryDialog
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +48,29 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         setupDatePicker()
         setupTimePicker()
         loadDefaultLedger()
+        setUpCategorySelector()
+    }
+
+    private fun setUpCategorySelector() {
+        mBinding.tvCategory.setOnClickListener {
+            // 根据收支类型获取对应分类
+            val categories = if (isExpense) {
+                Categories.EXPENSE_CATEGORIES
+            } else {
+                Categories.INCOME_CATEGORIES
+            }
+
+            // 创建分类选择弹窗
+            CategoryDialog(
+                context = this,
+                categories = categories,
+                selectedCategory = currentCategory,
+                onCategorySelected = { category ->
+                    currentCategory = category
+                    mBinding.tvCategory.text = category.name
+                }
+            ).show()
+        }
     }
 
     private fun setupLedgerSelector() {
@@ -148,7 +170,7 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
             }
         })
     }
-
+    //日期选择器
     private fun setupDatePicker() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val currentDate = Date()
@@ -183,7 +205,6 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
             }.show()
         }
     }
-
     //时间选择器
     private fun setupTimePicker() {
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
