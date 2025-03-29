@@ -1,4 +1,4 @@
-package com.xuhh.capybaraledger.ui.main_fragment.detail
+package com.xuhh.capybaraledger.ui.fragment.detail
 
 import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
