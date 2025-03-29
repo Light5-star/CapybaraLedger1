@@ -19,7 +19,7 @@ class CategoryRepository (
     }
 
     // 获取所有分类（Flow 实时更新）
-    suspend fun getAllCategories(): Flow<Category> = categoryDao.getAllCategories()
+    suspend fun getAllCategories(): Flow<List<Category>> = categoryDao.getAllCategories()
 
     // 根据类型获取分类（支出/收入）
     fun getCategoriesByType(type: Int): Flow<List<Category>> =
