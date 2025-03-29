@@ -7,15 +7,14 @@ import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.GridLayout
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.compose.ui.Alignment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.model.Category
+import com.xuhh.capybaraledger.ui.view.unicode.UnicodeTextView
 
 class CategoryDialog(
     context: Context,
@@ -44,7 +43,6 @@ class CategoryDialog(
 
         setupCloseButton()
         setupGridLayout()
-
     }
 
     private fun setupGridLayout() {
@@ -69,8 +67,10 @@ class CategoryDialog(
             val itemView = LayoutInflater.from(context)
                 .inflate(R.layout.item_bill_type_selector, gridLayout, false)
 
-            // 绑定数据...
-            itemView.findViewById<TextView>(R.id.tv_icon).text = category.type.toString()
+            // 使用UnicodeTextView显示图标
+            itemView.findViewById<UnicodeTextView>(R.id.tv_icon)?.apply {
+                text = context.getString(category.iconResId)
+            }
             itemView.findViewById<TextView>(R.id.tv_name).text = category.name
 
             // 动态设置列位置
@@ -95,16 +95,14 @@ class CategoryDialog(
             }
         }
     }
-
-    private fun setupCloseButton(){
-        findViewById<Button>(R.id.btnCancel)?.setOnClickListener {
+    //关闭按钮
+    private fun setupCloseButton() {
+        findViewById<TextView>(R.id.btn_close)?.setOnClickListener {
             dismiss()
         }
-
     }
-
+    //dp转px
     private fun Int.dpToPx(): Int {
-        val context = context ?: return 0 // 空检查
         return (this * context.resources.displayMetrics.density).toInt()
     }
 }

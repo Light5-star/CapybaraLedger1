@@ -32,7 +32,7 @@ class CategoryAdapter(
         val category = categories[position]
 
         // 设置分类数据
-        holder.tvIcon.text = category.type.toString()
+        holder.tvIcon.setText(category.iconResId)
         holder.tvName.text = category.name
 
         // 设置选中状态

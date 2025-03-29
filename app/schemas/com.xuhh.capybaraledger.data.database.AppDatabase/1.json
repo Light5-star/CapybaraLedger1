@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "aee95df49ab67a894a9d08c405b9cdef",
+    "identityHash": "1aa920dad7db6fffcbcb9bae7c279afc",
     "entities": [
       {
         "tableName": "bills",
@@ -244,7 +244,7 @@
       },
       {
         "tableName": "categories",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` INTEGER NOT NULL, `iconResId` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -261,6 +261,12 @@
           {
             "fieldPath": "type",
             "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iconResId",
+            "columnName": "iconResId",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -288,7 +294,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aee95df49ab67a894a9d08c405b9cdef')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1aa920dad7db6fffcbcb9bae7c279afc')"
     ]
   }
 }
