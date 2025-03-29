@@ -57,8 +57,7 @@ class LedgerSelectorDialog(
             // 处理账本选择
             coroutineScope.launch(Dispatchers.IO) {
                 val database = AppDatabase.getInstance(context)
-                database.ledgerDao().clearDefaultLedger()
-                database.ledgerDao().setDefaultLedger(ledger.id)
+                database.ledgerDao().safeSetDefaultLedger(ledger.id)
                 withContext(Dispatchers.Main) {
                     onLedgerSelected(ledger)
                     dismiss()

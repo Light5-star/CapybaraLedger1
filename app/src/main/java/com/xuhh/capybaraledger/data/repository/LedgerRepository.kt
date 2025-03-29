@@ -35,8 +35,7 @@ class LedgerRepository(private val ledgerDao: LedgerDao) {
 
     // 设置默认账本
     suspend fun setDefaultLedger(id: Long) = withContext(Dispatchers.IO) {
-        ledgerDao.clearDefaultLedger()
-        ledgerDao.setDefaultLedger(id)
+        ledgerDao.safeSetDefaultLedger(id)
     }
 
     // 删除账本

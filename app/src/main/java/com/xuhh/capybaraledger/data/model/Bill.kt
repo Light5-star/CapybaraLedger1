@@ -39,7 +39,7 @@ data class Bill(
     @ColumnInfo("category_id")
     val categoryId: Long,        // 分类ID
     val amount: Double,          // 金额
-    val type: Int,              // 类型：0支出，1收入
+    val type: Int = TYPE_EXPENSE,              // 类型：0支出，1收入
     @ColumnInfo("date")
     val date: Long,  // 使用时间戳存储
     @ColumnInfo("time")

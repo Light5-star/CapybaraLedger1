@@ -4,26 +4,22 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.xuhh.capybaraledger.data.dao.BillDao
 import com.xuhh.capybaraledger.data.dao.CategoryDao
-import com.xuhh.capybaraledger.data.dao.CategoryIconDao
 import com.xuhh.capybaraledger.data.dao.LedgerDao
 import com.xuhh.capybaraledger.data.dao.UserDao
 import com.xuhh.capybaraledger.data.model.Bill
+import com.xuhh.capybaraledger.data.model.Categories
 import com.xuhh.capybaraledger.data.model.Category
-import com.xuhh.capybaraledger.data.model.CategoryIcon
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.data.model.User
-import com.xuhh.capybaraledger.data.model.Categories
-import com.xuhh.capybaraledger.data.model.CategoryIconMapping
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Bill::class, Ledger::class, User::class, Category::class, CategoryIcon::class],
+    entities = [Bill::class, Ledger::class, User::class, Category::class],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -31,7 +27,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ledgerDao(): LedgerDao
     abstract fun userDao(): UserDao
     abstract fun categoryDao(): CategoryDao
-    abstract fun categoryIconDao(): CategoryIconDao
 
     companion object {
         private const val TAG = "AppDatabase"
@@ -62,7 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
                     
                     // 创建默认用户
                     val defaultUser = User(
-                        userId = "guest",
+                        userId = "defaultUser",
                         nickname = "未登录用户",
                         gender = User.GENDER_UNKNOWN
                     )
@@ -79,15 +74,10 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     database.ledgerDao().insert(defaultLedger)
 
-                    // 创建默认分类
                     Categories.getAllCategories().forEach { category ->
                         database.categoryDao().insert(category)
                     }
 
-                    // 创建默认分类图标
-                    CategoryIconMapping.getAllIcons().values.forEach { icon ->
-                        database.categoryIconDao().insert(icon)
-                    }
                 }
             }
         }

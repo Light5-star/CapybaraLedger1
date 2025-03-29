@@ -1,15 +1,14 @@
 package com.xuhh.capybaraledger.data.dao
 
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
-import androidx.room.Transaction
-import androidx.room.Embedded
 import androidx.room.Relation
+import androidx.room.Transaction
+import androidx.room.Update
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
-import kotlinx.coroutines.flow.Flow
 
 data class BillWithCategory(
     @Embedded val bill: Bill,
@@ -47,8 +46,4 @@ interface BillDao {
 
     @Query("SELECT SUM(amount) FROM bills WHERE type = :type AND date BETWEEN :startDate AND :endDate")
     suspend fun getExpenseAmount(type: Int, startDate: Long, endDate: Long): Double
-
-    @Transaction
-    @Query("SELECT * FROM bills")
-    fun getAllBillsFlow(): Flow<List<BillWithCategory>>
 }

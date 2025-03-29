@@ -3,6 +3,7 @@ package com.xuhh.capybaraledger.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.xuhh.capybaraledger.data.model.Ledger
 import kotlinx.coroutines.flow.Flow
@@ -28,8 +29,14 @@ interface LedgerDao {
     suspend fun clearDefaultLedger()
 
     @Query("UPDATE ledger SET isDefault = 1 WHERE id = :id")
-    suspend fun setDefaultLedger(id: Long)
+    suspend fun unsafeSetDefaultLedger(id: Long)
 
     @Query("DELETE FROM ledger WHERE id = :id")
     suspend fun deleteLedger(id: Long)
+
+    @Transaction
+    suspend fun safeSetDefaultLedger(id: Long) {
+        clearDefaultLedger()
+        unsafeSetDefaultLedger(id)
+    }
 } 
