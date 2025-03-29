@@ -18,7 +18,8 @@ data class Category(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
-    val type: Int
+    val type: Int,
+
 ) {
     companion object {
         const val TYPE_EXPENSE = 0

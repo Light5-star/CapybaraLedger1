@@ -5,6 +5,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.adapter.BillAdapter
+import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Ledger
@@ -22,7 +23,6 @@ import java.util.Random
 
 class HomeFragment: BaseFragment<FragmentHomeBinding>() {
     private lateinit var billAdapter: BillAdapter
-    private val TAG = "HomeFragment"
     private lateinit var database: AppDatabase
     private var currentLedger: Ledger? = null
 
@@ -35,12 +35,28 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         database = AppDatabase.getInstance(requireContext())
         setDate()
         setQuote()
-        setupRecyclerView()
         loadDefaultLedger()
         setupLedgerSelector()
+        setupRecyclerView()
+
     }
 
     private fun loadDefaultLedger() {
+        lifecycleScope.launch {
+            try {
+                // 从数据库加载默认账本
+                val defaultLedger = withContext(Dispatchers.IO) {
+                    database.ledgerDao().getDefaultLedger()
+                }
+                defaultLedger?.let {
+                    currentLedger = it
+                    mBinding.tvLedgerName.text = it.name
+                    loadBillData()
+                }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "加载默认账本失败", e)
+            }
+        }
     }
 
     private fun setupLedgerSelector() {
@@ -55,7 +71,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
 
     private fun setupRecyclerView() {
         // 回调，用于处理账单点击事件
-        val billClickCallback: (Bill) -> Unit = { bill ->
+        val billClickCallback: (BillWithCategory) -> Unit = { billWithCategory ->
 
         }
 
@@ -70,44 +86,54 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         }
     }
 
+    // HomeFragment.kt 中的 loadBillData 方法
     private fun loadBillData() {
         lifecycleScope.launch {
             try {
                 val currentDate = getCurrentDate()
                 val ledgerId = currentLedger?.id ?: 1L
-                Log.d(TAG, "Loading bills for date: $currentDate, ledgerId: $ledgerId")
-                
-                // 在后台线程加载数据
-                val bills = withContext(Dispatchers.IO) {
+
+                // 获取带分类信息的账单数据
+                val billsWithCategory = withContext(Dispatchers.IO) {
+                    database.billDao().getBillsByDate(
+                        date = parseDateToTimestamp(currentDate),
+                        ledgerId = ledgerId
+                    )
                 }
-                
-                // 在主线程更新UI
+
+                // 传递 BillWithCategory 列表给 Adapter
+                billAdapter.submitList(billsWithCategory)
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading bills", e)
+                Log.e("HomeFragment", "加载账单失败", e)
             }
         }
     }
 
-    private fun updateBillList(bills: List<Bill>) {
-        Log.d(TAG, "Updating UI with ${bills.size} bills")
-        if (bills.isEmpty()) {
-            Log.d(TAG, "Showing empty state")
-        } else {
+    // 日期字符串转时间戳（需实现）
+    private fun parseDateToTimestamp(date: String): Long {
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return format.parse(date)?.time ?: 0L
+    }
+
+    //更新账单
+    private fun updateBillList(bills: List<BillWithCategory>) {
+        if (bills.isNotEmpty()) {
             billAdapter.submitList(bills)
         }
     }
 
-    private fun getCurrentDate(): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return dateFormat.format(Date())
-    }
-
+    //设置每日一句
     private fun setQuote() {
         val quotes = resources.getStringArray(R.array.daily_quotes)
         val randomQuote = quotes[Random().nextInt(quotes.size)]
         mBinding.tvQuote.text = randomQuote
     }
-
+    //获取日期
+    private fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+    //设置日期
     private fun setDate() {
         val dateFormat = SimpleDateFormat("MM月dd日 E", Locale.CHINESE)
         mBinding.tvDate.text = dateFormat.format(Date())

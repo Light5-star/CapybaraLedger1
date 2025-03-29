@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.adapter.BillAdapter
+import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
@@ -85,12 +86,8 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
                 Log.d(TAG, "Loading bills for date: $currentDate, ledgerId: $ledgerId")
 
                 // 在后台线程加载数据
-                val bills = withContext(Dispatchers.IO) {
-//                    database.billDao().getBillsByDate(currentDate, ledgerId)
+                val billWithCategory = withContext(Dispatchers.IO) {
                 }
-
-//                Log.d(TAG, "Loaded ${bills.size} bills")
-
                 // 在主线程更新UI
                 withContext(Dispatchers.Main) {
 //                    updateBillList(bills)
@@ -101,7 +98,7 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         }
     }
 
-    private fun updateBillList(bills: List<Bill>) {
+    private fun updateBillList(bills: List<BillWithCategory>) {
         Log.d(TAG, "Updating UI with ${bills.size} bills")
         if (bills.isEmpty()) {
             Log.d(TAG, "Showing empty state")

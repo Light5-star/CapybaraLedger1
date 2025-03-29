@@ -15,7 +15,7 @@ interface CategoryDao {
 
     // 查询所有分类
     @Query("SELECT * FROM categories")
-    suspend fun getAllCategories(): Flow<List<Category>>
+    fun getAllCategories(): Flow<List<Category>>
 
     // 根据类型查询分类（支出或收入）
     @Query("SELECT * FROM categories WHERE type = :type")

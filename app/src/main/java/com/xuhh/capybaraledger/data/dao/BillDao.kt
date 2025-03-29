@@ -46,4 +46,13 @@ interface BillDao {
 
     @Query("SELECT SUM(amount) FROM bills WHERE type = :type AND date BETWEEN :startDate AND :endDate")
     suspend fun getExpenseAmount(type: Int, startDate: Long, endDate: Long): Double
+
+    @Transaction
+    @Query("SELECT * FROM bills WHERE id = :billId")
+    suspend fun getBillById(billId: Long): BillWithCategory?
+
+    // ✅ 其他编辑相关查询方法也需调整
+    @Transaction
+    @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId")
+    suspend fun getBillsByLedger(ledgerId: Long): List<BillWithCategory>
 }

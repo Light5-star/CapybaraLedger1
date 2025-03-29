@@ -9,8 +9,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.xuhh.capybaraledger.utils.KeyboardAnimation
+import kotlinx.coroutines.cancel
 
 /**
  * 基本的Fragment
@@ -58,6 +60,11 @@ abstract class BaseFragment<T: ViewBinding>: Fragment() {
                 insets
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleScope.cancel()
     }
 
     open fun initKeyboardAnimationView():View?{

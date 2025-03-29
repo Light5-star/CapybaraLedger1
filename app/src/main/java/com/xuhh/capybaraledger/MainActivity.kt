@@ -29,9 +29,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(){
     private fun refreshAllData() {
         // 刷新明细页面
         supportFragmentManager.findFragmentByTag("details")?.let { fragment ->
-//            if (fragment is DetailsFragment) {
-//                fragment.refreshData()
-//            }
         }
     }
 
