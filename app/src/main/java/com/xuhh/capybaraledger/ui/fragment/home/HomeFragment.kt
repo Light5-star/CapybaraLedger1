@@ -71,26 +71,20 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun setupRecyclerView() {
-        Log.d("HomeFragment", "开始设置 RecyclerView")
-        
         // 回调，用于处理账单点击事件
         val billClickCallback: (BillWithCategory) -> Unit = { billWithCategory ->
-            Log.d("HomeFragment", "账单被点击：${billWithCategory.bill.id}")
+
         }
 
         // 创建 BillAdapter 实例
         billAdapter = BillAdapter(billClickCallback)
-        Log.d("HomeFragment", "BillAdapter 创建完成")
 
         // 配置 RecyclerView
         mBinding.rvBills.apply {
             adapter = billAdapter
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            // 添加分割线
-            addItemDecoration(androidx.recyclerview.widget.DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         }
-        Log.d("HomeFragment", "RecyclerView 配置完成")
     }
 
     // HomeFragment.kt 中的 loadBillData 方法
@@ -99,7 +93,6 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
             try {
                 val currentDate = getCurrentDate()
                 val ledgerId = currentLedger?.id ?: 1L
-                Log.d("HomeFragment", "开始加载账单数据，日期：$currentDate，账本ID：$ledgerId")
 
                 // 获取带分类信息的账单数据
                 val billsWithCategory = withContext(Dispatchers.IO) {
@@ -108,53 +101,14 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
                         ledgerId = ledgerId
                     )
                 }
-                Log.d("HomeFragment", "获取到 ${billsWithCategory.size} 条账单数据")
-
-                // 计算结余
-                val balance = calculateBalance(billsWithCategory)
-                Log.d("HomeFragment", "计算得到结余：$balance")
-
-                // 在主线程更新 UI
-                withContext(Dispatchers.Main) {
-                    // 更新账单列表
-                    billAdapter.submitSortedList(billsWithCategory)
-                    Log.d("HomeFragment", "更新账单列表完成")
-
-                    // 更新结余显示
-                    mBinding.tvBalance.text = String.format(
-                        if (balance >= 0) "+%.2f" else "%.2f",
-                        balance
-                    )
-                    Log.d("HomeFragment", "更新结余显示完成")
-
-                    // 根据是否有数据显示空状态
-                    if (billsWithCategory.isEmpty()) {
-                        mBinding.tvEmpty.visibility = View.VISIBLE
-                        mBinding.rvBills.visibility = View.GONE
-                        Log.d("HomeFragment", "显示空状态")
-                    } else {
-                        mBinding.tvEmpty.visibility = View.GONE
-                        mBinding.rvBills.visibility = View.VISIBLE
-                        Log.d("HomeFragment", "显示账单列表")
-                    }
-                }
+                // 传递 BillWithCategory 列表给 Adapter
+                billAdapter.submitList(billsWithCategory)
+                calculateDailyBalance(ledgerId,currentDate)
+                mBinding.tvEmpty.visibility = if (billsWithCategory.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
-                Log.e("HomeFragment", "加载账单数据失败", e)
+                Log.e("HomeFragment", "加载账单失败", e)
             }
         }
-    }
-
-    private fun calculateBalance(bills: List<BillWithCategory>): Double {
-        var balance = 0.0
-        bills.forEach { billWithCategory ->
-            val amount = billWithCategory.bill.amount
-            if (billWithCategory.bill.type == Bill.TYPE_INCOME) {
-                balance += amount
-            } else {
-                balance -= amount
-            }
-        }
-        return balance
     }
 
     // 日期字符串转时间戳（需实现）
