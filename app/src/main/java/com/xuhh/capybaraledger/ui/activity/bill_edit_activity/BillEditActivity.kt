@@ -49,6 +49,12 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         setupTimePicker()
         loadDefaultLedger()
         setUpCategorySelector()
+        mBinding.btnSave.setOnClickListener {
+            saveBill()
+        }
+        mBinding.btnBack.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setUpCategorySelector() {
