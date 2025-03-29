@@ -163,7 +163,8 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
             // 创建日期选择对话框
             DatePickerDialog(
                 this, // Context
-                R.style.DateDialogTheme,
+//                有BUG
+//                R.style.MyDialogTheme,
                 { _, year, month, dayOfMonth -> // 日期选择回调
                     // 构造选中的日期
                     val selectedDate = Calendar.getInstance().apply {
@@ -183,6 +184,7 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         }
     }
 
+    //时间选择器
     private fun setupTimePicker() {
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val currentTime = Date()
@@ -196,7 +198,8 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
             // 创建时间选择对话框
             TimePickerDialog(
                 this, // 上下文
-                R.style.DateDialogTheme,
+//                有BUG
+//                R.style.MyDialogTheme,
                 { _, hourOfDay, minute -> // 时间选择回调
                     // 格式化用户选择的时间
                     val selectedTime = Calendar.getInstance().apply {
