@@ -11,6 +11,7 @@ import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.adapter.BillAdapter
 import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.data.database.AppDatabase
+import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
 import com.xuhh.capybaraledger.data.model.Categories
 import com.xuhh.capybaraledger.data.model.Ledger
@@ -245,26 +246,121 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
     }
 
     private fun saveBill() {
-        val amount = mBinding.etAmount.text.toString().toDoubleOrNull() ?: 0.0
-        val note = mBinding.etNote.text.toString()
-        val payee = mBinding.etPayee.text.toString()
-
-        if (amount <= 0) {
+        // 1. 验证输入
+        val amount = mBinding.etAmount.text.toString().toDoubleOrNull()
+        if (amount == null || amount <= 0) {
+            showToast("请输入正确的金额")
             return
         }
 
         if (currentCategory == null) {
+            showToast("请选择分类")
             return
         }
 
         if (currentLedger == null) {
+            showToast("请选择账本")
             return
         }
 
+        val note = mBinding.etNote.text.toString()
+        val payee = mBinding.etPayee.text.toString()
+
         lifecycleScope.launch {
             try {
-                finish()
+                // 2. 获取日期和时间
+                val dateStr = mBinding.tvDate.text.toString()
+                val timeStr = mBinding.tvTime.text.toString()
+
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+                val date = dateFormat.parse(dateStr)?.time
+                val time = timeFormat.parse(timeStr)?.time
+
+                if (date == null || time == null) {
+                    showToast("日期或时间格式错误")
+                    return@launch
+                }
+
+                withContext(Dispatchers.IO) {
+                    // 打印当前选择的分类和账本信息
+                    Log.d(TAG, "Current Category: ${currentCategory?.name}")
+                    Log.d(TAG, "Current Ledger: ${currentLedger?.id}, ${currentLedger?.name}")
+
+                    // 首先检查分类是否存在
+                    var categoryToUse = database.categoryDao().getCategoryByName(currentCategory!!.name)
+                    Log.d(TAG, "Existing Category: ${categoryToUse?.id}, ${categoryToUse?.name}")
+                    
+                    if (categoryToUse == null) {
+                        // 如果分类不存在，先插入分类
+                        Log.d(TAG, "Inserting new category: ${currentCategory!!.name}")
+                        val categoryId = database.categoryDao().insert(currentCategory!!)
+                        Log.d(TAG, "Category insert result: $categoryId")
+                        
+                        // 重新获取插入后的分类
+                        categoryToUse = database.categoryDao().getCategoryByName(currentCategory!!.name)
+                        Log.d(TAG, "Category after insert: ${categoryToUse?.id}, ${categoryToUse?.name}")
+                        
+                        if (categoryToUse == null) {
+                            throw Exception("分类插入失败")
+                        }
+                    }
+
+                    // 检查账本是否存在
+                    val existingLedger = database.ledgerDao().getLedgerById(currentLedger!!.id)
+                    Log.d(TAG, "Existing Ledger: ${existingLedger?.id}, ${existingLedger?.name}")
+                    
+                    if (existingLedger == null) {
+                        // 如果账本不存在，先插入账本
+                        Log.d(TAG, "Inserting new ledger: ${currentLedger!!.id}, ${currentLedger!!.name}")
+                        database.ledgerDao().insert(currentLedger!!)
+                    }
+
+                    // 再次验证分类和账本是否存在
+                    val finalCategoryCheck = database.categoryDao().getCategoryByName(currentCategory!!.name)
+                    val finalLedgerCheck = database.ledgerDao().getLedgerById(currentLedger!!.id)
+
+                    Log.d(TAG, "Final Category Check: ${finalCategoryCheck?.id}, ${finalCategoryCheck?.name}")
+                    Log.d(TAG, "Final Ledger Check: ${finalLedgerCheck?.id}, ${finalLedgerCheck?.name}")
+
+                    if (finalCategoryCheck == null || finalLedgerCheck == null) {
+                        throw Exception("分类或账本创建失败")
+                    }
+
+                    // 创建并保存账单
+                    val bill = Bill(
+                        id = 0, // 自动生成
+                        ledgerId = currentLedger!!.id,
+                        categoryId = finalCategoryCheck.id, // 使用最终检查的分类ID
+                        amount = amount,
+                        type = if (isExpense) Bill.TYPE_EXPENSE else Bill.TYPE_INCOME,
+                        date = date,
+                        time = time,
+                        note = note.takeIf { it.isNotBlank() },
+                        payee = payee.takeIf { it.isNotBlank() }
+                    )
+
+                    Log.d(TAG, "Saving bill with ledgerId: ${bill.ledgerId}, categoryId: ${bill.categoryId}")
+                    // 保存账单
+                    val billId = database.billDao().insert(bill)
+                    Log.d(TAG, "Bill insert result: $billId")
+
+                    // 验证账单是否真的保存了
+                    val savedBill = database.billDao().getBillById(billId)
+                    Log.d(TAG, "Saved bill verification: ${savedBill?.id}, ${savedBill?.categoryId}, ${savedBill?.ledgerId}")
+                }
+
+                // 显示成功提示并返回
+                withContext(Dispatchers.Main) {
+                    showToast("保存成功")
+                    finish()
+                }
             } catch (e: Exception) {
+                Log.e(TAG, "Error saving bill", e)
+                withContext(Dispatchers.Main) {
+                    showToast("保存失败：${e.message}")
+                }
             }
         }
     }

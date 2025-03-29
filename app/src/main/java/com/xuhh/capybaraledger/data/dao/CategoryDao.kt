@@ -28,4 +28,8 @@ interface CategoryDao {
     // 根据精确名称查询分类（用于唯一性检查）
     @Query("SELECT * FROM categories WHERE name = :name LIMIT 1")
     suspend fun getCategoryByName(name: String): Category
+
+    // 批量插入分类
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(categories: List<Category>)
 }

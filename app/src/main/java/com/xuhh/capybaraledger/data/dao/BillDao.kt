@@ -22,7 +22,10 @@ data class BillWithCategory(
 @Dao
 interface BillDao {
     @Insert
-    suspend fun insert(bill: Bill)
+    suspend fun insert(bill: Bill): Long
+
+    @Query("SELECT * FROM bills WHERE id = :id")
+    suspend fun getBillById(id: Long): Bill?
 
     @Transaction
     @Query("""
@@ -47,11 +50,6 @@ interface BillDao {
     @Query("SELECT SUM(amount) FROM bills WHERE type = :type AND date BETWEEN :startDate AND :endDate")
     suspend fun getExpenseAmount(type: Int, startDate: Long, endDate: Long): Double
 
-    @Transaction
-    @Query("SELECT * FROM bills WHERE id = :billId")
-    suspend fun getBillById(billId: Long): BillWithCategory?
-
-    // ✅ 其他编辑相关查询方法也需调整
     @Transaction
     @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId")
     suspend fun getBillsByLedger(ledgerId: Long): List<BillWithCategory>
