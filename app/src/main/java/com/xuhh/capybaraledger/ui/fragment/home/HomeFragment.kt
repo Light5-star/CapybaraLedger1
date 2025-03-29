@@ -1,6 +1,7 @@
-package com.xuhh.capybaraledger.ui.main_fragment.home
+package com.xuhh.capybaraledger.ui.fragment.home
 
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.R
@@ -100,9 +101,10 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
                         ledgerId = ledgerId
                     )
                 }
-
                 // 传递 BillWithCategory 列表给 Adapter
                 billAdapter.submitList(billsWithCategory)
+                calculateDailyBalance(ledgerId,currentDate)
+                mBinding.tvEmpty.visibility = if (billsWithCategory.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
                 Log.e("HomeFragment", "加载账单失败", e)
             }
@@ -137,5 +139,33 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
     private fun setDate() {
         val dateFormat = SimpleDateFormat("MM月dd日 E", Locale.CHINESE)
         mBinding.tvDate.text = dateFormat.format(Date())
+    }
+
+    // 新增结余计算方法
+    private suspend fun calculateDailyBalance(ledgerId: Long, date: String) {
+        withContext(Dispatchers.IO) {
+            val startTimestamp = parseDateToTimestamp(date)
+            val endTimestamp = startTimestamp + 86400000 // 加1天时间戳
+
+            // 获取当日总收入
+            val income = database.billDao().getExpenseAmount(
+                type = Bill.TYPE_INCOME,
+                startDate = startTimestamp,
+                endDate = endTimestamp
+            ) ?: 0.0
+
+            // 获取当日总支出
+            val expense = database.billDao().getExpenseAmount(
+                type = Bill.TYPE_EXPENSE,
+                startDate = startTimestamp,
+                endDate = endTimestamp
+            ) ?: 0.0
+
+            // 更新UI
+            withContext(Dispatchers.Main) {
+                val balance = income - expense
+                mBinding.tvBalance.text = "今日结余：${String.format("%.2f", balance)}"
+            }
+        }
     }
 }

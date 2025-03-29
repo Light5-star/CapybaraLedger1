@@ -53,4 +53,17 @@ interface BillDao {
     @Transaction
     @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId")
     suspend fun getBillsByLedger(ledgerId: Long): List<BillWithCategory>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM bills 
+        WHERE date BETWEEN :startDate AND :endDate 
+        AND ledger_id = :ledgerId
+        ORDER BY date DESC
+    """)
+    suspend fun getDailyBills(
+        startDate: Long,
+        endDate: Long,
+        ledgerId: Long
+    ): List<BillWithCategory>
 }

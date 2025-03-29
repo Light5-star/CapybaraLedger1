@@ -1,6 +1,5 @@
-package com.xuhh.capybaraledger.ui.main_fragment.statistics
+package com.xuhh.capybaraledger.ui.fragment.statistics
 
-import com.xuhh.capybaraledger.databinding.FragmentHomeBinding
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 
