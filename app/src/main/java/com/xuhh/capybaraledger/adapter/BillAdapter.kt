@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.ui.view.unicode.UnicodeTextView
+import java.util.Date
+import java.util.Locale
 
 class BillAdapter(
     private val onBillClick: (BillWithCategory) -> Unit
@@ -32,7 +34,7 @@ class BillAdapter(
         val billWithCategory = getItem(position)
 
         // 设置分类图标
-        holder.tvIcon.text = billWithCategory.category.name
+        holder.tvIcon.setText(billWithCategory.category.iconResId)
         holder.tvCategory.text = billWithCategory.category.name
 
         // 设置分类名称和备注
@@ -53,6 +55,15 @@ class BillAdapter(
 
         // 设置点击事件
         holder.itemView.setOnClickListener { onBillClick(billWithCategory) }
+
+        // 根据收支类型设置不同颜色
+        holder.tvAmount.setTextColor(
+            if (billWithCategory.bill.type == 0) {
+                holder.itemView.context.getColor(android.R.color.holo_red_dark)
+            } else {
+                holder.itemView.context.getColor(android.R.color.holo_green_dark)
+            }
+        )
     }
 
     object BillDiffCallback : DiffUtil.ItemCallback<BillWithCategory>() {
