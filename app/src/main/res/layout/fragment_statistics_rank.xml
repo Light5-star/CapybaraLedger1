@@ -34,6 +34,32 @@
                 android:text="@string/statistics_income" />
         </RadioGroup>
 
+        <!-- 在RadioGroup下方添加 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp">
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pieChart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="消费排行榜"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView 
+                android:id="@+id/rvRanking"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
         <!-- 图表区域 -->
         <LinearLayout
             android:layout_width="match_parent"

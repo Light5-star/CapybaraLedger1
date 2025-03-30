@@ -1,15 +1,23 @@
 package com.xuhh.capybaraledger.ui.fragment.statistics
 
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
+    private val calendar = Calendar.getInstance()
+    private var currentYear = calendar.get(Calendar.YEAR)
+    private var currentMonth = calendar.get(Calendar.MONTH)
     private var currentMode = Mode.TREND
     private var currentLedger: Ledger? = null
+    val currentMonthLiveData = MutableLiveData<Pair<Int, Int>>()
 
     override fun initBinding(): FragmentStatisticsBinding {
         return FragmentStatisticsBinding.inflate(layoutInflater)
@@ -21,6 +29,7 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
         setupLedgerSelector()
         setupModeSwitch()
         setupViewPager()
+        setupMonthSelector()
     }
 
     private fun setupViewPager() {
@@ -99,6 +108,29 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
                 mBinding.viewPager.currentItem = 1
             }
         }
+    }
+
+    private fun setupMonthSelector() {
+        updateMonthDisplay()
+        
+        mBinding.btnPrevMonth.setOnClickListener {
+            calendar.add(Calendar.MONTH, -1)
+            updateMonthDisplay()
+            loadBillData()
+        }
+
+        mBinding.btnNextMonth.setOnClickListener {
+            calendar.add(Calendar.MONTH, 1)
+            updateMonthDisplay()
+            loadBillData()
+        }
+    }
+
+    private fun updateMonthDisplay() {
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        currentMonthLiveData.value = Pair(year, month)
+        mBinding.tvMonth.text = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(calendar.time)
     }
 
     private enum class Mode {
