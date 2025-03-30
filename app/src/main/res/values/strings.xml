@@ -60,6 +60,13 @@
     <string name="friday">五</string>
     <string name="saturday">六</string>
 <!--    统计界面文本-->
+    <string name="ledger_select_desc">选择账本</string>
+    <string name="prev_month_desc">上个月</string>
+    <string name="next_month_desc">下个月</string>
+    <string name="statistics_expense">支出</string>
+    <string name="statistics_income">收入</string>
+    <string name="statistics_balance">结余</string>
+    <string name="statistics_month_summary">本月统计</string>
 
 <!--    我的界面文本-->
     <string name="other_settings">设置</string>
