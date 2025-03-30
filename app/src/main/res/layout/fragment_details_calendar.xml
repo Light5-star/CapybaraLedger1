@@ -10,7 +10,7 @@
         android:id="@+id/top_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/primary"
         android:padding="16dp">
 
         <ImageButton
@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="?attr/colorPrimary">
+        android:background="@color/primary">
 
         <TextView
             android:id="@+id/tv_month_expense"
