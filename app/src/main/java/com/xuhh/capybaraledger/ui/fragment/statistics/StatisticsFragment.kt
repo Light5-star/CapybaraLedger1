@@ -5,7 +5,6 @@ import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
-import com.xuhh.capybaraledger.ui.fragment.detail.DetailPagerAdapter
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 
 class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
@@ -26,8 +25,9 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
 
     private fun setupViewPager() {
         mBinding.viewPager.apply {
-            adapter = StatisticsPagerAdapter(requireActivity())
             isUserInputEnabled = false // 禁用滑动切换
+            // 添加缺失的适配器设置
+            adapter = StatisticsPagerAdapter(requireActivity())
         }
     }
 
@@ -88,7 +88,6 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
             if (currentMode != Mode.TREND) {
                 currentMode = Mode.TREND
                 updateModeUI()
-
                 mBinding.viewPager.currentItem = 0
             }
         }

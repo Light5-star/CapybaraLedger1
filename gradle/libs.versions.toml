@@ -19,7 +19,7 @@ navigationArg = "2.7.7"
 material3Android = "1.3.1"
 coreSplashscreen = "1.0.1"
 glide = "4.12.0"
-philJay = "v3.1.0"
+philJay = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
