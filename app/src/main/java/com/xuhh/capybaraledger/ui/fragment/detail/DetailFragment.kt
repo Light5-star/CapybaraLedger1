@@ -2,11 +2,16 @@ package com.xuhh.capybaraledger.ui.fragment.detail
 
 import androidx.core.content.ContextCompat
 import com.xuhh.capybaraledger.R
+import com.xuhh.capybaraledger.adapter.BillAdapter
+import com.xuhh.capybaraledger.data.database.AppDatabase
+import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
+import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 
 class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     private var currentMode = Mode.FLOW
+    private var currentLedger: Ledger? = null
 
     override fun initBinding(): FragmentDetailsBinding {
         return FragmentDetailsBinding.inflate(layoutInflater)
@@ -17,6 +22,25 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
         updateModeUI()
         setupModeSwitch()
         setupViewPager()
+        setupLedgerSelector()
+    }
+
+    private fun setupLedgerSelector() {
+        mBinding.layoutLedger.setOnClickListener {
+            LedgerSelectorDialog(requireContext()) { ledger ->
+                currentLedger = ledger
+                mBinding.tvLedgerName.text = ledger.name
+                loadBillData()
+            }.show()
+        }
+    }
+
+    private fun loadBillData() {
+        if (currentMode == Mode.FLOW) {
+            FlowModeFragment().loadBillData()
+        } else {
+            CalendarModeFragment().loadCalendarData()
+        }
     }
 
     private fun setupModeSwitch() {

@@ -1,5 +1,6 @@
 package com.xuhh.capybaraledger.ui.fragment.detail
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.adapter.DateSection
@@ -41,38 +42,38 @@ class FlowModeFragment : BaseFragment<FragmentDetailsListBinding>() {
         }
     }
 
-    private fun loadBillData() {
+    fun loadBillData() {
+        if (!isAdded) return
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                // 获取当前账本
-                val currentLedger = database.ledgerDao().getLedgerById(1L)
-                if (currentLedger == null) {
-                    return@launch
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                try {
+                    // 获取当前账本
+                    val currentLedger = database.ledgerDao().getLedgerById(1L) ?: return@launch
+
+                    // 获取所有账单
+                    val bills = database.billDao().getBillsByLedger(currentLedger.id)
+
+                    // 按日期分组
+                    val dateSections = bills.groupBy { billWithCategory: BillWithCategory ->
+                        // 将时间戳转换为日期（去掉时分秒）
+                        val calendar = Calendar.getInstance()
+                        calendar.time = Date(billWithCategory.bill.time)
+                        calendar.set(Calendar.HOUR_OF_DAY, 0)
+                        calendar.set(Calendar.MINUTE, 0)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+                        calendar.time
+                    }.map { (date: Date, billsList: List<BillWithCategory>) ->
+                        // 计算当日结余
+                        val balance = billsList.sumOf { billWithCategory: BillWithCategory -> billWithCategory.bill.amount }
+                        DateSection(date, billsList, balance)
+                    }.sortedByDescending { dateSection: DateSection -> dateSection.date }
+
+                    // 更新UI
+                    dateSectionAdapter.submitList(dateSections)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-
-                // 获取所有账单
-                val bills = database.billDao().getBillsByLedger(currentLedger.id)
-
-                // 按日期分组
-                val dateSections = bills.groupBy { billWithCategory: BillWithCategory ->
-                    // 将时间戳转换为日期（去掉时分秒）
-                    val calendar = Calendar.getInstance()
-                    calendar.time = Date(billWithCategory.bill.time)
-                    calendar.set(Calendar.HOUR_OF_DAY, 0)
-                    calendar.set(Calendar.MINUTE, 0)
-                    calendar.set(Calendar.SECOND, 0)
-                    calendar.set(Calendar.MILLISECOND, 0)
-                    calendar.time
-                }.map { (date: Date, billsList: List<BillWithCategory>) ->
-                    // 计算当日结余
-                    val balance = billsList.sumOf { billWithCategory: BillWithCategory -> billWithCategory.bill.amount }
-                    DateSection(date, billsList, balance)
-                }.sortedByDescending { dateSection: DateSection -> dateSection.date }
-
-                // 更新UI
-                dateSectionAdapter.submitList(dateSections)
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }

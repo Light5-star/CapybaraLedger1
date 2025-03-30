@@ -89,7 +89,7 @@ class CalendarModeFragment : Fragment() {
         binding.tvYearMonth.text = dateFormat.format(calendar.time)
     }
 
-    private fun loadCalendarData() {
+    fun loadCalendarData() {
         lifecycleScope.launch {
             try {
                 val database = AppDatabase.getInstance(requireContext())
