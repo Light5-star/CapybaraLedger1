@@ -68,4 +68,8 @@
     <color name="pie_color_6">#9370DB</color>  <!-- Medium Purple -->
     <color name="pie_color_7">#A9A9A9</color>  <!-- Dark Gray -->
 
+    <!-- 日历模式颜色 -->
+    <color name="colorExpense">#F44336</color>
+    <color name="colorIncome">#4CAF50</color>
+
 </resources>

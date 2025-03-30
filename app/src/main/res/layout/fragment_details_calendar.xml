@@ -5,85 +5,48 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 月份选择栏 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_section"
+    <!-- 顶部年月切换区域 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="@color/primary"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:gravity="center">
 
         <ImageButton
-            android:id="@+id/btn_prev_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/btnPrevMonth"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/ic_arrow_left"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="@android:color/white"
-            android:contentDescription="@string/prev_month"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:contentDescription="上个月"/>
 
         <TextView
-            android:id="@+id/tv_month"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            app:layout_constraintStart_toEndOf="@id/btn_prev_month"
-            app:layout_constraintEnd_toStartOf="@id/btn_next_month"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <ImageButton
-            android:id="@+id/btn_next_month"
+            android:id="@+id/tvYearMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="2024年3月"/>
+
+        <ImageButton
+            android:id="@+id/btnNextMonth"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/ic_arrow_right"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="@android:color/white"
-            android:contentDescription="@string/next_month"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- 月度收支统计 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@color/primary">
-
-        <TextView
-            android:id="@+id/tv_month_expense"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/details_total_expense"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/tv_month_income"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/details_total_income"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"/>
+            android:contentDescription="下个月"/>
     </LinearLayout>
 
-    <!-- 星期栏 -->
+    <!-- 星期标题行 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@color/accent"
         android:padding="8dp">
 
         <TextView
@@ -91,72 +54,65 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/sunday"
-            android:textColor="@color/text_secondary"/>
+            android:text="日"
+            android:textColor="@color/primary"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/monday"
-            android:textColor="@color/text_secondary"/>
+            android:text="一"
+            android:textColor="@color/primary"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/tuesday"
-            android:textColor="@color/text_secondary"/>
+            android:text="二"
+            android:textColor="@color/primary"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/wednesday"
-            android:textColor="@color/text_secondary"/>
+            android:text="三"
+            android:textColor="@color/primary"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/thursday"
-            android:textColor="@color/text_secondary"/>
+            android:text="四"
+            android:textColor="@color/primary"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/friday"
-            android:textColor="@color/text_secondary"/>
+            android:text="五"
+            android:textColor="@color/primary"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/saturday"
-            android:textColor="@color/text_secondary"/>
+            android:text="六"
+            android:textColor="@color/primary"/>
     </LinearLayout>
 
     <!-- 日历网格 -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_calendar_grid"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"/>
-
-    <!-- 每日账单列表 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_daily_bills"
+        android:id="@+id/rvCalendar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false"/>
+        android:background="@color/accent"
+        android:padding="8dp"/>
 
 </LinearLayout> 

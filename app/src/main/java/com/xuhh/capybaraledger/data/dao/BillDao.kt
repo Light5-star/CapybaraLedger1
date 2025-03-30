@@ -66,4 +66,7 @@ interface BillDao {
         endDate: Long,
         ledgerId: Long
     ): List<BillWithCategory>
+
+    @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId AND date >= :startTime AND date <= :endTime ORDER BY date DESC")
+    suspend fun getBillsByLedgerIdAndTimeRange(ledgerId: Long, startTime: Long, endTime: Long): List<Bill>
 }
