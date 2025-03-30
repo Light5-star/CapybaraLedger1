@@ -45,6 +45,11 @@ class CalendarModeFragment : Fragment() {
         loadCalendarData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadCalendarData()
+    }
+
     private fun setupCalendar() {
         calendarAdapter = CalendarAdapter()
         binding.rvCalendar.apply {

@@ -26,6 +26,11 @@ class FlowModeFragment : BaseFragment<FragmentDetailsListBinding>() {
         loadBillData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadBillData()
+    }
+
     private fun setupRecyclerView() {
         dateSectionAdapter = DateSectionAdapter { bill ->
             // TODO: 处理账单点击事件
