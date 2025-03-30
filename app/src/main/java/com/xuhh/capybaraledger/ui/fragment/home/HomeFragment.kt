@@ -1,5 +1,6 @@
 package com.xuhh.capybaraledger.ui.fragment.home
 
+import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +30,11 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
 
     override fun initBinding(): FragmentHomeBinding {
         return FragmentHomeBinding.inflate(layoutInflater)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadBillData()
     }
 
     override fun initView() {
@@ -87,7 +93,6 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         }
     }
 
-    // HomeFragment.kt 中的 loadBillData 方法
     private fun loadBillData() {
         lifecycleScope.launch {
             try {

@@ -43,11 +43,22 @@
     <!--    主页界面文本-->
     <string name="home_today">今天</string>
     <string name="home_no_bills">今天还没有记账哦~</string>
-    <string name="details_list_mode">流水模式</string>
-    <string name="details_calendar_mode">日历模式</string>
 
 <!--    明细界面文本-->
-
+    <string name="details_list_mode">流水模式</string>
+    <string name="details_calendar_mode">日历模式</string>
+    <string name="details_total_expense">支出：¥%1$.2f</string>
+    <string name="details_total_income">收入：¥%1$.2f</string>
+    <!-- 日历相关 -->
+    <string name="prev_month">上个月</string>
+    <string name="next_month">下个月</string>
+    <string name="sunday">日</string>
+    <string name="monday">一</string>
+    <string name="tuesday">二</string>
+    <string name="wednesday">三</string>
+    <string name="thursday">四</string>
+    <string name="friday">五</string>
+    <string name="saturday">六</string>
 <!--    统计界面文本-->
 
 <!--    我的界面文本-->
