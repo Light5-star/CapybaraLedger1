@@ -1,7 +1,11 @@
 package com.xuhh.capybaraledger.ui.fragment.statistics
 
+import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
+import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.application.App
@@ -16,12 +20,15 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
+class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
     private var currentMode = Mode.TREND
     private var currentLedger: Ledger? = null
     private lateinit var mViewModel: BillViewModel
-    private var mStatisticsViewModel = StatisticsViewModel()
+    private val statisticsViewModel: StatisticsViewModel by viewModels()
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+    }
 
     override fun initBinding(): FragmentStatisticsBinding {
         return FragmentStatisticsBinding.inflate(layoutInflater)
@@ -121,17 +128,17 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
 
     private fun setupMonthSelector() {
         // 观察 Calendar 变化
-        mStatisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+        statisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
             updateMonthDisplay(calendar)
             loadBillData()
         }
 
         mBinding.btnPrevMonth.setOnClickListener {
-            mStatisticsViewModel.backMonth()
+            statisticsViewModel.backMonth()
         }
 
         mBinding.btnNextMonth.setOnClickListener {
-            mStatisticsViewModel.nextMonth()
+            statisticsViewModel.nextMonth()
         }
     }
 
@@ -141,9 +148,7 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
         mBinding.tvMonth.text = sdf.format(calendar.time)
     }
 
-
     private enum class Mode {
         RANK,TREND
     }
-
 }

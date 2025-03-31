@@ -44,7 +44,8 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
         if (currentMode == Mode.FLOW) {
             FlowModeFragment().loadBillData()
         } else {
-            CalendarModeFragment().loadCalendarData()
+            // 获取CalendarModeFragment实例并刷新数据
+            (mBinding.viewPager.adapter as? DetailPagerAdapter)?.getCalendarFragment()?.loadCalendarData()
         }
     }
 
@@ -70,6 +71,10 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
         mBinding.viewPager.apply {
             adapter = DetailPagerAdapter(requireActivity())
             isUserInputEnabled = false // 禁用滑动切换
+            // 设置初始页面
+            post {
+                currentItem = if (currentMode == Mode.FLOW) 0 else 1
+            }
         }
     }
 
