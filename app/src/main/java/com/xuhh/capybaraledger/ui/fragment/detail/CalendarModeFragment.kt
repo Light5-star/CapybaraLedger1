@@ -1,6 +1,7 @@
 package com.xuhh.capybaraledger.ui.fragment.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,20 +21,32 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
     private val detailViewModel: DetailViewModel by activityViewModels()
     private lateinit var calendarAdapter: CalendarAdapter
     private var currentLedgerId: Long = 1L
+    private var isViewCreated = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isViewCreated = true
         setupCalendar()
-        loadCalendarData()
-    }
-
-    override fun initBinding(): FragmentDetailsCalendarBinding {
-        return FragmentDetailsCalendarBinding.inflate(layoutInflater)
+        setupObservers()
     }
 
     override fun onResume() {
         super.onResume()
-        loadCalendarData()
+        if (isViewCreated) {
+            loadCalendarData()
+        }
+    }
+
+    private fun setupObservers() {
+        detailViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+            if (isViewCreated && isResumed) {
+                loadCalendarData()
+            }
+        }
+    }
+
+    override fun initBinding(): FragmentDetailsCalendarBinding {
+        return FragmentDetailsCalendarBinding.inflate(layoutInflater)
     }
 
     private fun setupCalendar() {
@@ -79,11 +92,14 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
                 // 处理日历数据
                 val calendarData = processCalendarData(bills, currentYear, currentMonth)
                 
-                // 在主线程更新UI
+                // 在主线程更新UI时添加日志
                 withContext(Dispatchers.Main) {
                     calendarAdapter.submitList(calendarData)
+                    // 添加日志以确认数据更新
+                    Log.d("CalendarMode", "Calendar data updated for $currentYear-$currentMonth")
                 }
             } catch (e: Exception) {
+                Log.e("CalendarMode", "Error loading calendar data", e)
                 e.printStackTrace()
             }
         }

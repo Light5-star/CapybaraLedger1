@@ -12,15 +12,15 @@ class DetailViewModel:ViewModel() {
     val calendar: LiveData<Calendar> = _calendar
 
     fun nextMonth() {
-        val newCalendar = _calendar.value!!.clone() as Calendar
+        val newCalendar = (_calendar.value ?: Calendar.getInstance()).clone() as Calendar
         newCalendar.add(Calendar.MONTH, 1)
-        _calendar.value = newCalendar
+        _calendar.postValue(newCalendar)
     }
 
     fun backMonth() {
-        val newCalendar = _calendar.value!!.clone() as Calendar
+        val newCalendar = (_calendar.value ?: Calendar.getInstance()).clone() as Calendar
         newCalendar.add(Calendar.MONTH, -1)
-        _calendar.value = newCalendar
+        _calendar.postValue(newCalendar)
     }
 
 }

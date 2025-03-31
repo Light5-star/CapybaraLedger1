@@ -1,7 +1,9 @@
 package com.xuhh.capybaraledger.ui.fragment.detail
 
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
@@ -41,11 +43,13 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     }
 
     private fun loadBillData() {
+        Log.d("DetailFragment", "loadBillData: currentMode=$currentMode")
         if (currentMode == Mode.FLOW) {
             FlowModeFragment().loadBillData()
         } else {
-            // 获取CalendarModeFragment实例并刷新数据
-            (mBinding.viewPager.adapter as? DetailPagerAdapter)?.getCalendarFragment()?.loadCalendarData()
+            val fragment = (mBinding.viewPager.adapter as? DetailPagerAdapter)?.getFragment(mBinding.viewPager.currentItem)
+            Log.d("DetailFragment", "Trying to load calendar data, fragment=${fragment?.javaClass?.simpleName}")
+            (fragment as? CalendarModeFragment)?.loadCalendarData()
         }
     }
 
@@ -69,8 +73,15 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
 
     private fun setupViewPager() {
         mBinding.viewPager.apply {
-            adapter = DetailPagerAdapter(requireActivity())
-            isUserInputEnabled = false // 禁用滑动切换
+            adapter = DetailPagerAdapter(childFragmentManager, lifecycle)
+            isUserInputEnabled = false
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    currentMode = if (position == 0) Mode.FLOW else Mode.CALENDAR
+                    updateModeUI()
+                }
+            })
             // 设置初始页面
             post {
                 currentItem = if (currentMode == Mode.FLOW) 0 else 1
@@ -117,8 +128,8 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     }
 
     private fun setupMonthSelector() {
-        // 观察 Calendar 变化
         mDetailViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+            Log.d("DetailFragment", "Calendar updated: ${calendar.time}")
             updateMonthDisplay(calendar)
             loadBillData()
         }
