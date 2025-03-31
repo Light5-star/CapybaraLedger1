@@ -7,17 +7,10 @@ import com.xuhh.capybaraledger.data.repository.LedgerRepository
 import com.xuhh.capybaraledger.data.repository.UserRepository
 
 class App : Application() {
-    private val database by lazy { AppDatabase.getInstance(this) }
+    // 数据库实例（单例）
+    val database by lazy { AppDatabase.getInstance(this) }
 
-    val billRepository by lazy {
-        BillRepository(database.billDao())
-    }
-
-    val ledgerRepository by lazy {
-        LedgerRepository(database.ledgerDao())
-    }
-
-    val userRepository by lazy {
-        UserRepository(database.userDao())
-    }
+    // 全局共享的 Repository
+    val ledgerRepository by lazy { LedgerRepository(database.ledgerDao()) }
+    val billRepository by lazy { BillRepository(database.billDao()) }
 }

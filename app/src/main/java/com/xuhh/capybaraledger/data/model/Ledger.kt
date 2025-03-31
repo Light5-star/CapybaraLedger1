@@ -15,5 +15,6 @@ data class Ledger(
     val icon: Int = 0,   //账本图标
     val color: Int = 0, //账本颜色
     val isDefault: Boolean = false, //是否默认账本
-    val sortOrder: Int = 0  //排序编号
+    val sortOrder: Int = 0,  //排序编号
+    var currency: Boolean = false
 ) 

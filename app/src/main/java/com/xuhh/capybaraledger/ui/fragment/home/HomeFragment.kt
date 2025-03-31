@@ -2,10 +2,13 @@ package com.xuhh.capybaraledger.ui.fragment.home
 
 import android.util.Log
 import android.view.View
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.adapter.BillAdapter
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
@@ -13,6 +16,8 @@ import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentHomeBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,6 +27,7 @@ import java.util.Locale
 import java.util.Random
 
 class HomeFragment: BaseFragment<FragmentHomeBinding>() {
+    private lateinit var mViewModel: BillViewModel
     private lateinit var billAdapter: BillAdapter
     private lateinit var database: AppDatabase
     private var currentLedger: Ledger? = null
@@ -37,13 +43,19 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
 
     override fun initView() {
         super.initView()
+        // 获取 Application 实例
+        val app = requireActivity().application as App
+
+        // 创建 ViewModel
+        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
+        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
+
         database = AppDatabase.getInstance(requireContext())
         setDate()
         setQuote()
         loadDefaultLedger()
         setupLedgerSelector()
         setupRecyclerView()
-
     }
 
     private fun loadDefaultLedger() {

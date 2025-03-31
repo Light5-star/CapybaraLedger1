@@ -3,13 +3,17 @@ package com.xuhh.capybaraledger.data.repository
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.xuhh.capybaraledger.data.dao.BillDao
+import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.data.model.Bill
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 class BillRepository(private val billDao: BillDao) {
 
@@ -59,5 +63,34 @@ class BillRepository(private val billDao: BillDao) {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val localDate = LocalDate.parse(dateStr, formatter)
         return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+
+    suspend fun getBillsByLedger(ledgerId: Long): List<BillWithCategory> {
+        return billDao.getBillsByLedger(ledgerId)
+    }
+
+    suspend fun getDailyBalance(ledgerId: Long): Pair<Double, Double> {
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val startTimestamp = parseDateToTimestamp(currentDate)
+        val endTimestamp = startTimestamp + 86400000
+
+        val income = billDao.getExpenseAmount(
+            type = Bill.TYPE_INCOME,
+            startDate = startTimestamp,
+            endDate = endTimestamp
+        ) ?: 0.0
+
+        val expense = billDao.getExpenseAmount(
+            type = Bill.TYPE_EXPENSE,
+            startDate = startTimestamp,
+            endDate = endTimestamp
+        ) ?: 0.0
+
+        return Pair(income, expense)
+    }
+
+    private fun parseDateToTimestamp(date: String): Long {
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return format.parse(date)?.time ?: 0L
     }
 }

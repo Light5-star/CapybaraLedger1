@@ -73,6 +73,7 @@ dependencies {
     //viewModelScope lifecycleScope
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    ksp(libs.androidx.room.compiler)
 
     //room
     implementation(libs.androidx.room.runtime)

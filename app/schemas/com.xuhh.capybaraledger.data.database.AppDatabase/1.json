@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1aa920dad7db6fffcbcb9bae7c279afc",
+    "identityHash": "3c13e9b6912a978ce9d0463b62f9250f",
     "entities": [
       {
         "tableName": "bills",
@@ -116,7 +116,7 @@
       },
       {
         "tableName": "ledger",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `icon` INTEGER NOT NULL, `color` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `icon` INTEGER NOT NULL, `color` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `currency` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -157,6 +157,12 @@
           {
             "fieldPath": "sortOrder",
             "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currency",
+            "columnName": "currency",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -294,7 +300,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1aa920dad7db6fffcbcb9bae7c279afc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3c13e9b6912a978ce9d0463b62f9250f')"
     ]
   }
 }
