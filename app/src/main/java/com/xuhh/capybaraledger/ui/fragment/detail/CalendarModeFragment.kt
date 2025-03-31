@@ -159,27 +159,27 @@ class CalendarAdapter : RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>
                     tvExpense.text = "%.0f".format(day.expense)
                     tvExpense.visibility = View.VISIBLE
                 } else {
-                    tvExpense.visibility = View.GONE
+                    tvExpense.visibility = View.INVISIBLE
                 }
                 
                 if (day.income > 0) {
                     tvIncome.text = "%.0f".format(day.income)
                     tvIncome.visibility = View.VISIBLE
                 } else {
-                    tvIncome.visibility = View.GONE
+                    tvIncome.visibility = View.INVISIBLE
                 }
                 
                 if (day.balance != 0.0) {
                     tvBalance.text = "%.0f".format(day.balance)
                     tvBalance.visibility = View.VISIBLE
                 } else {
-                    tvBalance.visibility = View.GONE
+                    tvBalance.visibility = View.INVISIBLE
                 }
             } else {
                 tvDay.visibility = View.INVISIBLE
-                tvExpense.visibility = View.GONE
-                tvIncome.visibility = View.GONE
-                tvBalance.visibility = View.GONE
+                tvExpense.visibility = View.INVISIBLE
+                tvIncome.visibility = View.INVISIBLE
+                tvBalance.visibility = View.INVISIBLE
             }
         }
     }

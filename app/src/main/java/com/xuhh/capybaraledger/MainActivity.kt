@@ -8,13 +8,17 @@ import android.graphics.drawable.BitmapDrawable
 import android.util.TypedValue
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.databinding.ActivityMainBinding
 import com.xuhh.capybaraledger.ui.activity.bill_edit_activity.BillEditActivity
 import com.xuhh.capybaraledger.ui.base.BaseActivity
 import com.xuhh.capybaraledger.ui.view.unicode.UnicodeTextView
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 
 class MainActivity : BaseActivity<ActivityMainBinding>(){
     private val billEditLauncher = registerForActivityResult(
@@ -24,6 +28,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(){
             // 刷新所有数据
             refreshAllData()
         }
+    }
+
+    val sharedBillViewModel: BillViewModel by viewModels {
+        ViewModelFactory(
+            (application as App).ledgerRepository,
+            (application as App).billRepository
+        )
     }
 
     private fun refreshAllData() {

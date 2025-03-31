@@ -2,12 +2,16 @@ package com.xuhh.capybaraledger.ui.fragment.statistics
 
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.xuhh.capybaraledger.R
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -15,7 +19,8 @@ import java.util.Locale
 class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
     private var currentMode = Mode.TREND
     private var currentLedger: Ledger? = null
-    private val mStatisticsViewModel = StatisticsViewModel()
+    private lateinit var mViewModel: BillViewModel
+    private var mStatisticsViewModel = StatisticsViewModel()
 
 
     override fun initBinding(): FragmentStatisticsBinding {
@@ -24,6 +29,11 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
 
     override fun initView() {
         super.initView()
+        // 获取 Application 实例
+        val app = requireActivity().application as App
+        // 创建 ViewModel
+        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
+        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
         updateModeUI()
         setupLedgerSelector()
         setupModeSwitch()
