@@ -33,6 +33,10 @@ class LedgerRepository(private val ledgerDao: LedgerDao) {
         return ledgerDao.getAllLedgersFlow()
     }
 
+    fun getAllLedgers(): List<Ledger> {
+        return ledgerDao.getAllLedgers()
+    }
+
     // 设置默认账本
     suspend fun setDefaultLedger(id: Long) = withContext(Dispatchers.IO) {
         ledgerDao.safeSetDefaultLedger(id)

@@ -25,6 +25,9 @@ interface LedgerDao {
     @Query("SELECT * FROM ledger ORDER BY sortOrder ASC")
     fun getAllLedgersFlow(): Flow<List<Ledger>>
 
+    @Query("SELECT * FROM ledger ORDER BY sortOrder ASC")
+    fun getAllLedgers(): List<Ledger>
+
     @Query("UPDATE ledger SET isDefault = 0")
     suspend fun clearDefaultLedger()
 

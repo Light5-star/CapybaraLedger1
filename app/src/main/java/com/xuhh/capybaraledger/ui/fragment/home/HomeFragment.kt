@@ -1,6 +1,5 @@
 package com.xuhh.capybaraledger.ui.fragment.home
 
-import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +14,6 @@ import com.xuhh.capybaraledger.databinding.FragmentHomeBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
