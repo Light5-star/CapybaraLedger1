@@ -13,36 +13,28 @@ import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.databinding.FragmentDetailsCalendarBinding
+import com.xuhh.capybaraledger.ui.base.BaseFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CalendarModeFragment : Fragment() {
-    private var _binding: FragmentDetailsCalendarBinding? = null
-    private val binding get() = _binding!!
-    
+class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
     private lateinit var calendarAdapter: CalendarAdapter
     private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
     private var currentMonth = Calendar.getInstance().get(Calendar.MONTH)
     private var currentLedgerId: Long = 1L
-    
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentDetailsCalendarBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
         setupCalendar()
-        setupMonthNavigation()
         loadCalendarData()
+    }
+
+    override fun initBinding(): FragmentDetailsCalendarBinding {
+        return FragmentDetailsCalendarBinding.inflate(layoutInflater)
     }
 
     override fun onResume() {
@@ -52,41 +44,10 @@ class CalendarModeFragment : Fragment() {
 
     private fun setupCalendar() {
         calendarAdapter = CalendarAdapter()
-        binding.rvCalendar.apply {
+        mBinding.rvCalendar.apply {
             layoutManager = GridLayoutManager(context, 7)
             adapter = calendarAdapter
         }
-    }
-
-    private fun setupMonthNavigation() {
-        binding.btnPrevMonth.setOnClickListener {
-            if (currentMonth == Calendar.JANUARY) {
-                currentMonth = Calendar.DECEMBER
-                currentYear--
-            } else {
-                currentMonth--
-            }
-            updateYearMonthDisplay()
-            loadCalendarData()
-        }
-
-        binding.btnNextMonth.setOnClickListener {
-            if (currentMonth == Calendar.DECEMBER) {
-                currentMonth = Calendar.JANUARY
-                currentYear++
-            } else {
-                currentMonth++
-            }
-            updateYearMonthDisplay()
-            loadCalendarData()
-        }
-    }
-
-    private fun updateYearMonthDisplay() {
-        val calendar = Calendar.getInstance()
-        calendar.set(currentYear, currentMonth, 1)
-        val dateFormat = SimpleDateFormat("yyyy年MM月", Locale.getDefault())
-        binding.tvYearMonth.text = dateFormat.format(calendar.time)
     }
 
     fun loadCalendarData() {
@@ -153,11 +114,6 @@ class CalendarModeFragment : Fragment() {
         }
         
         return calendarDays
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
 

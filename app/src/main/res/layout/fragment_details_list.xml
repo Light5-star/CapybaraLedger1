@@ -4,74 +4,32 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 月度汇总 -->
+    <!-- 收支统计 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingTop="8dp"
+        android:background="@color/accent"
+        android:orientation="horizontal">
 
-        <!-- 月份选择 -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_expense"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/accent"
+            android:textSize="16sp" />
 
-            <ImageButton
-                android:id="@+id/btn_prev_month"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/prev_month"
-                android:src="@drawable/ic_arrow_left" />
-
-            <TextView
-                android:id="@+id/tv_month"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
-
-            <ImageButton
-                android:id="@+id/btn_next_month"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/next_month"
-                android:src="@drawable/ic_arrow_right" />
-
-        </LinearLayout>
-
-        <!-- 收支统计 -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_income"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/accent"
+            android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/tv_expense"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textColor="@color/accent"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tv_income"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textColor="@color/accent"
-                android:textSize="16sp" />
-
-        </LinearLayout>
     </LinearLayout>
 
     <!-- 账单列表 -->

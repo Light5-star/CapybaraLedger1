@@ -1,17 +1,21 @@
 package com.xuhh.capybaraledger.ui.fragment.detail
 
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import com.xuhh.capybaraledger.R
-import com.xuhh.capybaraledger.adapter.BillAdapter
-import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
+import com.xuhh.capybaraledger.viewmodel.DetailViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     private var currentMode = Mode.FLOW
     private var currentLedger: Ledger? = null
+    private val mDetailViewModel: DetailViewModel by viewModels()
 
     override fun initBinding(): FragmentDetailsBinding {
         return FragmentDetailsBinding.inflate(layoutInflater)
@@ -23,6 +27,7 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
         setupModeSwitch()
         setupViewPager()
         setupLedgerSelector()
+        setupMonthSelector()
     }
 
     private fun setupLedgerSelector() {
@@ -104,6 +109,28 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
                 }
             )
         }
+    }
+
+    private fun setupMonthSelector() {
+        // 观察 Calendar 变化
+        mDetailViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+            updateMonthDisplay(calendar)
+            loadBillData()
+        }
+
+        mBinding.btnPrevMonth.setOnClickListener {
+            mDetailViewModel.backMonth()
+        }
+
+        mBinding.btnNextMonth.setOnClickListener {
+            mDetailViewModel.nextMonth()
+        }
+    }
+
+    // 更新日期显示方法
+    private fun updateMonthDisplay(calendar: Calendar) {
+        val sdf = SimpleDateFormat("yyyy年M月", Locale.getDefault())
+        mBinding.tvMonth.text = sdf.format(calendar.time)
     }
 
     private enum class Mode {

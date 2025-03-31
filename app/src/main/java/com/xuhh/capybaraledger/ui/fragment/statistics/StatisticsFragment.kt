@@ -7,17 +7,16 @@ import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
+import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
-    private val calendar = Calendar.getInstance()
-    private var currentYear = calendar.get(Calendar.YEAR)
-    private var currentMonth = calendar.get(Calendar.MONTH)
     private var currentMode = Mode.TREND
     private var currentLedger: Ledger? = null
-    val currentMonthLiveData = MutableLiveData<Pair<Int, Int>>()
+    private val mStatisticsViewModel = StatisticsViewModel()
+
 
     override fun initBinding(): FragmentStatisticsBinding {
         return FragmentStatisticsBinding.inflate(layoutInflater)
@@ -111,27 +110,27 @@ class StatisticsFragment: BaseFragment<FragmentStatisticsBinding>() {
     }
 
     private fun setupMonthSelector() {
-        updateMonthDisplay()
-        
-        mBinding.btnPrevMonth.setOnClickListener {
-            calendar.add(Calendar.MONTH, -1)
-            updateMonthDisplay()
+        // 观察 Calendar 变化
+        mStatisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+            updateMonthDisplay(calendar)
             loadBillData()
+        }
+
+        mBinding.btnPrevMonth.setOnClickListener {
+            mStatisticsViewModel.backMonth()
         }
 
         mBinding.btnNextMonth.setOnClickListener {
-            calendar.add(Calendar.MONTH, 1)
-            updateMonthDisplay()
-            loadBillData()
+            mStatisticsViewModel.nextMonth()
         }
     }
 
-    private fun updateMonthDisplay() {
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        currentMonthLiveData.value = Pair(year, month)
-        mBinding.tvMonth.text = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(calendar.time)
+    // 更新日期显示方法
+    private fun updateMonthDisplay(calendar: Calendar) {
+        val sdf = SimpleDateFormat("yyyy年M月", Locale.getDefault())
+        mBinding.tvMonth.text = sdf.format(calendar.time)
     }
+
 
     private enum class Mode {
         RANK,TREND
