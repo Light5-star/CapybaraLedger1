@@ -59,47 +59,36 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
 
     fun loadCalendarData() {
         if (!isAdded || isDetached) return
-        
-        val calendar = detailViewModel.calendar.value ?: Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH)
-        
+
         lifecycleScope.launch {
             try {
                 val database = AppDatabase.getInstance(requireContext())
                 val billDao = database.billDao()
-                
-                // 获取当前月份的开始和结束时间
-                val startCalendar = Calendar.getInstance().apply {
-                    set(currentYear, currentMonth, 1, 0, 0, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-                val startTime = startCalendar.timeInMillis
-                
-                val endCalendar = Calendar.getInstance().apply {
-                    set(currentYear, currentMonth, 1, 0, 0, 0)
-                    set(Calendar.MILLISECOND, 0)
-                    add(Calendar.MONTH, 1)
-                    add(Calendar.MILLISECOND, -1)
-                }
-                val endTime = endCalendar.timeInMillis
 
-                // 在后台线程加载账单数据
+                // 使用 ViewModel 的时间范围
+                val (startTime, endTime) = detailViewModel.getCurrentMonthRange()
+                val currentMonth = detailViewModel.calendar.value?.get(Calendar.MONTH)
+                Log.d("CalendarMode", "Loading data for month: $currentMonth, range: $startTime to $endTime")
+
                 val bills = withContext(Dispatchers.IO) {
                     billDao.getBillsByLedgerIdAndTimeRange(currentLedgerId, startTime, endTime)
                 }
+                Log.d("CalendarMode", "Loaded ${bills.size} bills for month $currentMonth")
 
                 // 处理日历数据
-                val calendarData = processCalendarData(bills, currentYear, currentMonth)
-                
-                // 在主线程更新UI时添加日志
+                val calendarData = processCalendarData(
+                    bills,
+                    detailViewModel.calendar.value?.get(Calendar.YEAR) ?: 0,
+                    detailViewModel.calendar.value?.get(Calendar.MONTH) ?: 0
+                )
+
+                // 更新UI
                 withContext(Dispatchers.Main) {
                     calendarAdapter.submitList(calendarData)
-                    // 添加日志以确认数据更新
-                    Log.d("CalendarMode", "Calendar data updated for $currentYear-$currentMonth")
+                    Log.d("CalendarMode", "UI updated for month $currentMonth")
                 }
             } catch (e: Exception) {
-                Log.e("CalendarMode", "Error loading calendar data", e)
+                Log.e("CalendarMode", "Error loading data", e)
                 e.printStackTrace()
             }
         }

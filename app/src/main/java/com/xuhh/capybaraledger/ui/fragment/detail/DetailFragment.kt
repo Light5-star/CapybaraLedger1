@@ -43,13 +43,18 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     }
 
     private fun loadBillData() {
-        Log.d("DetailFragment", "loadBillData: currentMode=$currentMode")
-        if (currentMode == Mode.FLOW) {
-            FlowModeFragment().loadBillData()
-        } else {
-            val fragment = (mBinding.viewPager.adapter as? DetailPagerAdapter)?.getFragment(mBinding.viewPager.currentItem)
-            Log.d("DetailFragment", "Trying to load calendar data, fragment=${fragment?.javaClass?.simpleName}")
-            (fragment as? CalendarModeFragment)?.loadCalendarData()
+        val adapter = mBinding.viewPager.adapter as? DetailPagerAdapter
+        val currentFragment = adapter?.getFragment(mBinding.viewPager.currentItem)
+        
+        when (currentFragment) {
+            is FlowModeFragment -> {
+                Log.d("DetailFragment", "Loading flow mode data")
+                currentFragment.loadBillData()
+            }
+            is CalendarModeFragment -> {
+                Log.d("DetailFragment", "Loading calendar mode data")
+                currentFragment.loadCalendarData()
+            }
         }
     }
 
@@ -129,16 +134,18 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
 
     private fun setupMonthSelector() {
         mDetailViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
-            Log.d("DetailFragment", "Calendar updated: ${calendar.time}")
+            Log.d("DetailFragment", "Calendar changed: month=${calendar.get(Calendar.MONTH)}")
             updateMonthDisplay(calendar)
             loadBillData()
         }
 
         mBinding.btnPrevMonth.setOnClickListener {
+            Log.d("DetailFragment", "Previous month clicked")
             mDetailViewModel.backMonth()
         }
 
         mBinding.btnNextMonth.setOnClickListener {
+            Log.d("DetailFragment", "Next month clicked")
             mDetailViewModel.nextMonth()
         }
     }

@@ -72,4 +72,11 @@ interface BillDao {
 
     @Query("SELECT * FROM bills WHERE time >= :startTime AND time < :endTime")
     suspend fun getBillsByTimeRange(startTime: Long, endTime: Long): List<BillWithCategory>
+
+    @Query("""
+        SELECT b.*, c.* FROM bills b 
+        INNER JOIN categories c ON b.category_id = c.id 
+        WHERE b.ledger_id = :ledgerId AND b.date BETWEEN :startTime AND :endTime
+    """)
+    suspend fun getBillsWithCategoryByTimeRange(ledgerId: Long, startTime: Long, endTime: Long): List<BillWithCategory>
 }

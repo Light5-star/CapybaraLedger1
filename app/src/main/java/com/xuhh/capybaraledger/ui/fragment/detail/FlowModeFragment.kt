@@ -54,34 +54,20 @@ class FlowModeFragment : BaseFragment<FragmentDetailsListBinding>() {
     fun loadBillData() {
         if (!isAdded || isDetached) return
 
-        val calendar = detailViewModel.calendar.value ?: Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH)
-
         lifecycleScope.launch {
             try {
                 val database = AppDatabase.getInstance(requireContext())
                 val billDao = database.billDao()
 
-                // 获取当前月份的开始和结束时间
-                val startCalendar = Calendar.getInstance().apply {
-                    set(currentYear, currentMonth, 1, 0, 0, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-                val startTime = startCalendar.timeInMillis
+                // 使用 ViewModel 的时间范围
+                val (startTime, endTime) = detailViewModel.getCurrentMonthRange()
+                val currentMonth = detailViewModel.calendar.value?.get(Calendar.MONTH)
+                Log.d("FlowMode", "Loading data for month: $currentMonth, range: $startTime to $endTime")
 
-                val endCalendar = Calendar.getInstance().apply {
-                    set(currentYear, currentMonth, 1, 0, 0, 0)
-                    set(Calendar.MILLISECOND, 0)
-                    add(Calendar.MONTH, 1)
-                    add(Calendar.MILLISECOND, -1)
-                }
-                val endTime = endCalendar.timeInMillis
-
-                // 在后台线程加载账单数据
                 val billsWithCategory = withContext(Dispatchers.IO) {
                     billDao.getDailyBills(startTime, endTime, currentLedgerId)
                 }
+                Log.d("FlowMode", "Loaded ${billsWithCategory.size} bills for month $currentMonth")
 
                 // 按日期分组处理数据
                 val dateSections = billsWithCategory
@@ -113,13 +99,13 @@ class FlowModeFragment : BaseFragment<FragmentDetailsListBinding>() {
                     }
                     .sortedByDescending { it.date }
 
-                // 在主线程更新UI
+                // 处理数据和更新UI
                 withContext(Dispatchers.Main) {
                     dateSectionAdapter.submitList(dateSections)
-                    Log.d("FlowMode", "Bill data updated for $currentYear-$currentMonth")
+                    Log.d("FlowMode", "UI updated for month $currentMonth")
                 }
             } catch (e: Exception) {
-                Log.e("FlowMode", "Error loading bill data", e)
+                Log.e("FlowMode", "Error loading data", e)
                 e.printStackTrace()
             }
         }
