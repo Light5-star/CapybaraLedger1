@@ -3,11 +3,8 @@ package com.xuhh.capybaraledger.ui.view.ledgerselect
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.view.Window
 import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.xuhh.capybaraledger.R
-import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.DialogLedgerSelectorBinding
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
@@ -15,9 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LedgerSelectorDialog(
     context: Context,

@@ -8,17 +8,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.application.App
-import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import com.xuhh.capybaraledger.viewmodel.DetailViewModel
 import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import kotlinx.coroutines.launch
 
 
 class DetailFragment: BaseFragment<FragmentDetailsBinding>() {

@@ -1,5 +1,7 @@
 package com.xuhh.capybaraledger.viewmodel
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.xuhh.capybaraledger.data.dao.BillWithCategory
@@ -11,7 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class BillViewModel(
     private val ledgerRepository: LedgerRepository,
@@ -58,6 +61,7 @@ class BillViewModel(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun loadBillsForCurrentLedger() {
         viewModelScope.launch {
             val currentDate = getCurrentDate()
