@@ -5,10 +5,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.util.Calendar
+import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class DetailViewModel : ViewModel() {
-    private val _calendar = MutableLiveData<Calendar>()
+    private val _calendar = MutableLiveData<Calendar>().apply {
+        value = Calendar.getInstance()
+    }
     val calendar: LiveData<Calendar> = _calendar
+
+    // 获取当前日期字符串
+    fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(_calendar.value?.time ?: Date())
+    }
 
     init {
         // 初始化时设置为当月1号0点

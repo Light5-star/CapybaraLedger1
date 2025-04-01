@@ -79,4 +79,33 @@ interface BillDao {
         WHERE b.ledger_id = :ledgerId AND b.date BETWEEN :startTime AND :endTime
     """)
     suspend fun getBillsWithCategoryByTimeRange(ledgerId: Long, startTime: Long, endTime: Long): List<BillWithCategory>
+
+    @Transaction
+    @Query("""
+        SELECT b.*, c.* FROM bills b 
+        LEFT JOIN categories c ON b.category_id = c.id 
+        WHERE b.ledger_id = :ledgerId 
+        AND b.date >= :startDate 
+        AND b.date < :endDate 
+        ORDER BY b.date DESC, b.time DESC
+    """)
+    suspend fun getBillsByDateRange(
+        ledgerId: Long,
+        startDate: Long,
+        endDate: Long
+    ): List<BillWithCategory>
+
+    @Query("""
+        SELECT COALESCE(SUM(amount), 0.0) FROM bills 
+        WHERE type = :type 
+        AND ledger_id = :ledgerId
+        AND date >= :startDate 
+        AND date < :endDate
+    """)
+    suspend fun getExpenseAmount(
+        type: Int,
+        ledgerId: Long,
+        startDate: Long,
+        endDate: Long
+    ): Double
 }

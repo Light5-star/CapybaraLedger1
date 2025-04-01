@@ -93,4 +93,41 @@ class BillRepository(private val billDao: BillDao) {
         val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return format.parse(date)?.time ?: 0L
     }
+
+    // 获取指定日期范围内的账单
+    suspend fun getBillsByDateRange(
+        ledgerId: Long,
+        startDate: Long,
+        endDate: Long
+    ): List<BillWithCategory> = withContext(Dispatchers.IO) {
+        billDao.getBillsByDateRange(
+            ledgerId = ledgerId,
+            startDate = startDate,
+            endDate = endDate
+        )
+    }
+
+    // 获取指定类型的金额总和
+    suspend fun getAmountByType(
+        ledgerId: Long,
+        type: Int,
+        startDate: Long,
+        endDate: Long
+    ): Double = withContext(Dispatchers.IO) {
+        billDao.getExpenseAmount(
+            type = type,
+            startDate = startDate,
+            endDate = endDate,
+            ledgerId = ledgerId
+        )
+    }
+
+    // 获取指定时间范围内的账单数据
+    suspend fun getBillsWithCategoryByTimeRange(
+        ledgerId: Long,
+        startTime: Long,
+        endTime: Long
+    ): List<BillWithCategory> = withContext(Dispatchers.IO) {
+        billDao.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)
+    }
 }

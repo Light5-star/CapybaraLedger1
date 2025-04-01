@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -13,17 +14,21 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.xuhh.capybaraledger.adapter.CategoryRankAdapter
 import com.xuhh.capybaraledger.adapter.CategoryRankItem
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsRankBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
     private val viewModel: StatisticsViewModel by activityViewModels()
+    private lateinit var mViewModel: BillViewModel
     private var currentType = Bill.TYPE_EXPENSE
     private var isViewCreated = false
     private lateinit var rankAdapter: CategoryRankAdapter
@@ -32,16 +37,32 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         return FragmentStatisticsRankBinding.inflate(layoutInflater)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        isViewCreated = true
+    override fun initView() {
+        super.initView()
+        val app = requireActivity().application as App
+        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
+        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
+
         setupPieChart()
         setupTypeRadioGroup()
         setupRecyclerView()
         setupObservers()
+        
+        // 初始加载数据
+        loadData()
     }
 
     private fun setupObservers() {
+        // 观察账本变化
+        lifecycleScope.launch {
+            mViewModel.currentLedger.collect { ledger ->
+                ledger?.let {
+                    loadData()
+                }
+            }
+        }
+
+        // 观察日期变化
         viewModel.calendar.observe(viewLifecycleOwner) { calendar ->
             if (isViewCreated && isResumed) {
                 loadData()
@@ -86,15 +107,13 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
     private fun loadData() {
         lifecycleScope.launch {
             try {
-                val database = AppDatabase.getInstance(requireContext())
-                val billDao = database.billDao()
                 val (startTime, endTime) = viewModel.getCurrentMonthRange()
-                val ledgerId = viewModel.currentLedgerId.value ?: 1L
+                val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
 
-                // 获取账单数据
-                val billsWithCategory = withContext(Dispatchers.IO) {
-                    billDao.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)
-                }
+                // 使用 BillViewModel 获取账单数据
+                val billsWithCategory = mViewModel.getBillsWithCategoryByTimeRange(
+                    ledgerId, startTime, endTime
+                )
 
                 // 按类别分组统计
                 val categoryData = billsWithCategory
@@ -122,20 +141,7 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
                     )
                 }
 
-                val colors = listOf(
-                    Color.rgb(255, 99, 71),
-                    Color.rgb(255, 165, 0),
-                    Color.rgb(255, 215, 0),
-                    Color.rgb(144, 238, 144),
-                    Color.rgb(135, 206, 235)
-                )
-
-                val dataSet = PieDataSet(entries, "").apply {
-                    this.colors = colors
-                    valueTextSize = 14f
-                    valueTextColor = Color.WHITE
-                }
-
+                // 更新 UI
                 withContext(Dispatchers.Main) {
                     if (entries.isEmpty()) {
                         mBinding.contentView.visibility = View.GONE
@@ -144,14 +150,9 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
                         mBinding.contentView.visibility = View.VISIBLE
                         mBinding.llEmptyView.visibility = View.GONE
                         
-                        mBinding.pieChart.apply {
-                            data = PieData(dataSet).apply {
-                                setValueFormatter(PercentFormatter(mBinding.pieChart))
-                            }
-                            centerText = if (currentType == Bill.TYPE_EXPENSE) "支出分布" else "收入分布"
-                            invalidate()
-                        }
-
+                        // 更新饼图
+                        updatePieChart(entries)
+                        
                         // 更新排行列表
                         rankAdapter.submitList(rankItems)
                     }
@@ -163,6 +164,30 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
                     mBinding.llEmptyView.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    private fun updatePieChart(entries: List<PieEntry>) {
+        val colors = listOf(
+            Color.rgb(255, 99, 71),
+            Color.rgb(255, 165, 0),
+            Color.rgb(255, 215, 0),
+            Color.rgb(144, 238, 144),
+            Color.rgb(135, 206, 235)
+        )
+
+        val dataSet = PieDataSet(entries, "").apply {
+            this.colors = colors
+            valueTextSize = 14f
+            valueTextColor = Color.WHITE
+        }
+
+        mBinding.pieChart.apply {
+            data = PieData(dataSet).apply {
+                setValueFormatter(PercentFormatter(mBinding.pieChart))
+            }
+            centerText = if (currentType == Bill.TYPE_EXPENSE) "支出分布" else "收入分布"
+            invalidate()
         }
     }
 

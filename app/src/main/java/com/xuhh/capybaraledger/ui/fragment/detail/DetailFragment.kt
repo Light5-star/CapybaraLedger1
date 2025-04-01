@@ -72,17 +72,30 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     }
 
     private fun loadBillData() {
-        val adapter = mBinding.viewPager.adapter as? DetailPagerAdapter
-        val currentFragment = adapter?.getFragment(mBinding.viewPager.currentItem)
-        
-        when (currentFragment) {
-            is FlowModeFragment -> {
-                Log.d("DetailFragment", "Loading flow mode data")
-                currentFragment.loadBillData()
-            }
-            is CalendarModeFragment -> {
-                Log.d("DetailFragment", "Loading calendar mode data")
-                currentFragment.loadCalendarData()
+        lifecycleScope.launch {
+            try {
+                val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
+                val currentDate = mDetailViewModel.getCurrentDate()
+                
+                // 使用 ViewModel 获取账单数据
+                val bills = mViewModel.getBillsByDate(currentDate, ledgerId)
+                
+                // 更新当前显示的 Fragment
+                val adapter = mBinding.viewPager.adapter as? DetailPagerAdapter
+                val currentFragment = adapter?.getFragment(mBinding.viewPager.currentItem)
+                
+                when (currentFragment) {
+                    is FlowModeFragment -> {
+                        Log.d("DetailFragment", "Loading flow mode data")
+                        currentFragment.loadBillData()
+                    }
+                    is CalendarModeFragment -> {
+                        Log.d("DetailFragment", "Loading calendar mode data")
+                        currentFragment.loadCalendarData()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DetailFragment", "加载账单失败", e)
             }
         }
     }
