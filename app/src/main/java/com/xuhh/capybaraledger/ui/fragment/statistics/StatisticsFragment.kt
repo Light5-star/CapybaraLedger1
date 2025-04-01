@@ -3,6 +3,7 @@ package com.xuhh.capybaraledger.ui.fragment.statistics
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +22,10 @@ import java.util.Locale
 
 class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
     private var currentMode = Mode.TREND
-    private lateinit var mViewModel: BillViewModel
+    private val mViewModel: BillViewModel by activityViewModels {
+        val app = requireActivity().application as App
+        ViewModelFactory(app.ledgerRepository, app.billRepository)
+    }
     private val statisticsViewModel: StatisticsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,11 +38,6 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
 
     override fun initView() {
         super.initView()
-        // 初始化 BillViewModel
-        val app = requireActivity().application as App
-        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
-        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
-
         setupViews()
         observeViewModel()
     }

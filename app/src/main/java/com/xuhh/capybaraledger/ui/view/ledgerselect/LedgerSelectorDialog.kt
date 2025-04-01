@@ -61,8 +61,12 @@ class LedgerSelectorDialog(
 
     private fun setupRecyclerView() {
         adapter = LedgerSelectorAdapter { ledger ->
-            onLedgerSelected(ledger)
-            dismiss()
+            // 更新当前账本
+            coroutineScope.launch {
+                viewModel.updateCurrentLedger(ledger)
+                onLedgerSelected(ledger)
+                dismiss()
+            }
         }
 
         binding.rvLedgers.apply {
@@ -73,6 +77,16 @@ class LedgerSelectorDialog(
 
     private fun observeViewModel() {
         coroutineScope.launch {
+            // 观察当前账本
+            viewModel.currentLedger.collect { ledger ->
+                ledger?.let {
+                    adapter.setCurrentLedger(it.id)
+                }
+            }
+        }
+
+        coroutineScope.launch {
+            // 观察账本列表
             viewModel.ledgers.collect { ledgers ->
                 adapter.submitList(ledgers)
             }

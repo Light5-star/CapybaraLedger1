@@ -1,7 +1,8 @@
 package com.xuhh.capybaraledger.ui.fragment.home
 
 import android.view.View
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.R
@@ -19,7 +20,10 @@ import java.util.Locale
 import java.util.Random
 
 class HomeFragment: BaseFragment<FragmentHomeBinding>() {
-    private lateinit var mViewModel: BillViewModel
+    private val mViewModel: BillViewModel by activityViewModels {
+        val app = requireActivity().application as App
+        ViewModelFactory(app.ledgerRepository, app.billRepository)
+    }
     private lateinit var billAdapter: BillAdapter
 
     override fun initBinding(): FragmentHomeBinding {
@@ -28,11 +32,6 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
 
     override fun initView() {
         super.initView()
-        // 初始化 ViewModel
-        val app = requireActivity().application as App
-        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
-        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
-
         setupViews()
         observeViewModel()
     }

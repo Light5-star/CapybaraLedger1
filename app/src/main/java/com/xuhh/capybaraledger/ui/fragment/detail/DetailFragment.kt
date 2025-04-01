@@ -2,6 +2,7 @@ package com.xuhh.capybaraledger.ui.fragment.detail
 
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,7 +24,10 @@ import java.util.Locale
 class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     private var currentMode = Mode.FLOW
     private val mDetailViewModel: DetailViewModel by viewModels()
-    private lateinit var mViewModel: BillViewModel
+    private val mViewModel: BillViewModel by activityViewModels {
+        val app = requireActivity().application as App
+        ViewModelFactory(app.ledgerRepository, app.billRepository)
+    }
 
     override fun initBinding(): FragmentDetailsBinding {
         return FragmentDetailsBinding.inflate(layoutInflater)
@@ -31,11 +35,6 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
 
     override fun initView() {
         super.initView()
-        // 初始化 BillViewModel
-        val app = requireActivity().application as App
-        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
-        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
-
         setupViews()
         observeViewModel()
     }
