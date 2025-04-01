@@ -1,6 +1,7 @@
 package com.xuhh.capybaraledger.ui.fragment.profile
 
 import com.xuhh.capybaraledger.databinding.FragmentProfileBinding
+import com.xuhh.capybaraledger.dialog.AboutDialog
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 
 class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
@@ -10,7 +11,10 @@ class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
 
     override fun initView() {
         super.initView()
-
+        
+        // 设置关于我们的点击事件
+        mBinding.llAbout.setOnClickListener {
+            AboutDialog(requireContext()).show()
+        }
     }
-
 }
