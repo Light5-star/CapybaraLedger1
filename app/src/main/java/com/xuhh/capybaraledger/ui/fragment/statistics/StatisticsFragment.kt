@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.model.Ledger
@@ -19,10 +20,10 @@ import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
     private var currentMode = Mode.TREND
-    private var currentLedger: Ledger? = null
     private lateinit var mViewModel: BillViewModel
     private val statisticsViewModel: StatisticsViewModel by viewModels()
 
@@ -36,16 +37,33 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
 
     override fun initView() {
         super.initView()
-        // 获取 Application 实例
+        // 初始化 BillViewModel
         val app = requireActivity().application as App
-        // 创建 ViewModel
         val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
         mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
+
+        setupViews()
+        observeViewModel()
+    }
+
+    private fun setupViews() {
         updateModeUI()
         setupLedgerSelector()
         setupModeSwitch()
         setupViewPager()
         setupMonthSelector()
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 观察当前账本
+            mViewModel.currentLedger.collect { ledger ->
+                ledger?.let {
+                    mBinding.tvLedgerName.text = it.name
+                    loadBillData()
+                }
+            }
+        }
     }
 
     private fun setupViewPager() {
@@ -58,10 +76,11 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
 
     private fun setupLedgerSelector() {
         mBinding.layoutLedger.setOnClickListener {
-            LedgerSelectorDialog(requireContext()) { ledger ->
-                currentLedger = ledger
-                mBinding.tvLedgerName.text = ledger.name
-                loadBillData()
+            LedgerSelectorDialog(
+                requireContext(),
+                mViewModel
+            ) { ledger ->
+                // 选择账本的处理已经在 Dialog 中完成
             }.show()
         }
     }

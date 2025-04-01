@@ -3,21 +3,28 @@ package com.xuhh.capybaraledger.ui.fragment.detail
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.R
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import com.xuhh.capybaraledger.viewmodel.DetailViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.launch
+
 
 class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     private var currentMode = Mode.FLOW
-    private var currentLedger: Ledger? = null
     private val mDetailViewModel: DetailViewModel by viewModels()
+    private lateinit var mViewModel: BillViewModel
 
     override fun initBinding(): FragmentDetailsBinding {
         return FragmentDetailsBinding.inflate(layoutInflater)
@@ -25,6 +32,16 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
 
     override fun initView() {
         super.initView()
+        // 初始化 BillViewModel
+        val app = requireActivity().application as App
+        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
+        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
+
+        setupViews()
+        observeViewModel()
+    }
+
+    private fun setupViews() {
         updateModeUI()
         setupModeSwitch()
         setupViewPager()
@@ -32,12 +49,25 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
         setupMonthSelector()
     }
 
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 观察当前账本
+            mViewModel.currentLedger.collect { ledger ->
+                ledger?.let {
+                    mBinding.tvLedgerName.text = it.name
+                    loadBillData()
+                }
+            }
+        }
+    }
+
     private fun setupLedgerSelector() {
         mBinding.layoutLedger.setOnClickListener {
-            LedgerSelectorDialog(requireContext()) { ledger ->
-                currentLedger = ledger
-                mBinding.tvLedgerName.text = ledger.name
-                loadBillData()
+            LedgerSelectorDialog(
+                requireContext(),
+                mViewModel
+            ) { ledger ->
+                // 选择账本的处理已经在 Dialog 中完成
             }.show()
         }
     }

@@ -10,15 +10,18 @@ import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.DialogLedgerSelectorBinding
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LedgerSelectorDialog(
     context: Context,
+    private val viewModel: BillViewModel,
     private val onLedgerSelected: (Ledger) -> Unit
 ) : Dialog(context) {
     private lateinit var binding: DialogLedgerSelectorBinding
@@ -47,21 +50,15 @@ class LedgerSelectorDialog(
 
         // 设置RecyclerView
         setupRecyclerView()
-        
-        // 加载账本数据
-        loadLedgers()
+        observeViewModel()
     }
 
     private fun setupRecyclerView() {
         adapter = LedgerSelectorAdapter { ledger ->
-            // 处理账本选择
-            coroutineScope.launch(Dispatchers.IO) {
-                val database = AppDatabase.getInstance(context)
-                database.ledgerDao().safeSetDefaultLedger(ledger.id)
-                withContext(Dispatchers.Main) {
-                    onLedgerSelected(ledger)
-                    dismiss()
-                }
+            coroutineScope.launch {
+                viewModel.updateCurrentLedger(ledger)
+                onLedgerSelected(ledger)
+                dismiss()
             }
         }
 
@@ -71,17 +68,16 @@ class LedgerSelectorDialog(
         }
     }
 
-    private fun loadLedgers() {
-        ledgerJob = coroutineScope.launch {
-            val database = AppDatabase.getInstance(context)
-            database.ledgerDao().getAllLedgersFlow().collectLatest { ledgers ->
+    private fun observeViewModel() {
+        coroutineScope.launch {
+            viewModel.ledgers.collect { ledgers ->
                 adapter.submitList(ledgers)
             }
         }
     }
 
     override fun dismiss() {
-        ledgerJob?.cancel()
+        coroutineScope.cancel()
         super.dismiss()
     }
 } 

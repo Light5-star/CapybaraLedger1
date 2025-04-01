@@ -92,7 +92,7 @@ class FeedbackDialog(context: Context) : Dialog(context) {
             try {
                 // 复制公众号名称到剪贴板
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("公众号", "Light5staar")
+                val clip = ClipData.newPlainText("公众号", "Light5star")
                 clipboard.setPrimaryClip(clip)
                 
                 // 尝试打开微信

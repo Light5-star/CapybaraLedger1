@@ -25,11 +25,16 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.lifecycle.ViewModelProvider
+import com.xuhh.capybaraledger.application.App
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 
 class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
     private lateinit var billAdapter: BillAdapter
     private val TAG = "BillEditActivity"
     private lateinit var database: AppDatabase
+    private lateinit var viewModel: BillViewModel
     private var currentLedger: Ledger? = null
     private var currentCategory: Category? = null
     private var isExpense = true // true为支出，false为收入
@@ -41,6 +46,10 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
 
     override fun initView() {
         super.initView()
+        val app = application as App
+        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
+        viewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
+
         database = AppDatabase.getInstance(this)
         setupToolbar()
         setupLedgerSelector()
@@ -82,7 +91,10 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
 
     private fun setupLedgerSelector() {
         mBinding.tvLedger.setOnClickListener {
-            LedgerSelectorDialog(this) { ledger ->
+            LedgerSelectorDialog(
+                this,
+                viewModel
+            ) { ledger ->
                 currentLedger = ledger
                 mBinding.tvLedger.text = ledger.name
                 loadBillData()

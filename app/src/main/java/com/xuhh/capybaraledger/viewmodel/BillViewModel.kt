@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BillViewModel(
     private val ledgerRepository: LedgerRepository,
@@ -24,22 +26,66 @@ class BillViewModel(
     private val _balance = MutableStateFlow(0.0)
     val balance: StateFlow<Double> = _balance.asStateFlow()
 
+    private val _ledgers = MutableStateFlow<List<Ledger>>(emptyList())
+    val ledgers: StateFlow<List<Ledger>> = _ledgers.asStateFlow()
+
+    init {
+        loadLedgers()
+        loadDefaultLedger()
+    }
+
+    private fun loadLedgers() {
+        viewModelScope.launch {
+            ledgerRepository.getAllLedgersFlow().collect { ledgers ->
+                _ledgers.value = ledgers
+            }
+        }
+    }
+
+    private fun loadDefaultLedger() {
+        viewModelScope.launch {
+            val defaultLedger = ledgerRepository.getDefaultLedger()
+            defaultLedger?.let { 
+                updateCurrentLedger(it)
+            }
+        }
+    }
+
     fun updateCurrentLedger(ledger: Ledger) {
-        _currentLedger.value = ledger
-        loadBills(ledger.id)
-        calculateBalance(ledger.id)
-    }
-
-    private fun loadBills(ledgerId: Long) {
         viewModelScope.launch {
-            _bills.value = billRepository.getBillsByLedger(ledgerId)
+            _currentLedger.value = ledger
+            loadBillsForCurrentLedger()
         }
     }
 
-    private fun calculateBalance(ledgerId: Long) {
+    private fun loadBillsForCurrentLedger() {
         viewModelScope.launch {
-            val (income, expense) = billRepository.getDailyBalance(ledgerId)
-            _balance.value = income - expense
+            val currentDate = getCurrentDate()
+            val ledgerId = _currentLedger.value?.id ?: return@launch
+            
+            // 加载账单
+            val bills = billRepository.getBillsByDate(currentDate, ledgerId)
+            _bills.value = bills
+            
+            // 计算余额
+            calculateDailyBalance(ledgerId, currentDate)
         }
+    }
+
+    private suspend fun calculateDailyBalance(ledgerId: Long, date: String) {
+        val (income, expense) = billRepository.getDailyBalance(ledgerId)
+        _balance.value = income - expense
+    }
+
+    fun createLedger(name: String) {
+        viewModelScope.launch {
+            val ledger = Ledger(name = name)
+            ledgerRepository.createLedger(ledger)
+        }
+    }
+
+    private fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(Date())
     }
 }

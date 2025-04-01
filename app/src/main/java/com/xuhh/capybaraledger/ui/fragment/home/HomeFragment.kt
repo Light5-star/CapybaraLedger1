@@ -30,7 +30,6 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
     private lateinit var mViewModel: BillViewModel
     private lateinit var billAdapter: BillAdapter
     private lateinit var database: AppDatabase
-    private var currentLedger: Ledger? = null
 
     override fun initBinding(): FragmentHomeBinding {
         return FragmentHomeBinding.inflate(layoutInflater)
@@ -38,7 +37,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
 
     override fun onResume() {
         super.onResume()
-        loadBillData()
+        // 不再需要手动调用 loadBillData
     }
 
     override fun initView() {
@@ -51,78 +50,64 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
 
         database = AppDatabase.getInstance(requireContext())
+        setupViews()
+        observeViewModel()
+    }
+
+    private fun setupViews() {
         setDate()
         setQuote()
-        loadDefaultLedger()
         setupLedgerSelector()
         setupRecyclerView()
     }
 
-    private fun loadDefaultLedger() {
-        lifecycleScope.launch {
-            try {
-                // 从数据库加载默认账本
-                val defaultLedger = withContext(Dispatchers.IO) {
-                    database.ledgerDao().getDefaultLedger()
-                }
-                defaultLedger?.let {
-                    currentLedger = it
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 观察当前账本
+            mViewModel.currentLedger.collect { ledger ->
+                ledger?.let {
                     mBinding.tvLedgerName.text = it.name
-                    loadBillData()
                 }
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "加载默认账本失败", e)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 观察账单列表
+            mViewModel.bills.collect { bills ->
+                billAdapter.submitList(bills)
+                mBinding.tvEmpty.visibility = if (bills.isEmpty()) View.VISIBLE else View.GONE
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 观察余额
+            mViewModel.balance.collect { balance ->
+                mBinding.tvBalance.text = "今日结余：${String.format("%.2f", balance)}"
             }
         }
     }
 
     private fun setupLedgerSelector() {
         mBinding.layoutLedger.setOnClickListener {
-            LedgerSelectorDialog(requireContext()) { ledger ->
-                currentLedger = ledger
-                mBinding.tvLedgerName.text = ledger.name
-                loadBillData()
+            LedgerSelectorDialog(
+                requireContext(),
+                mViewModel
+            ) { ledger ->
+                // 这里不需要手动调用 updateCurrentLedger，因为在 Dialog 中已经调用了
+                // 这里可以添加其他需要的操作
             }.show()
         }
     }
 
     private fun setupRecyclerView() {
-        // 回调，用于处理账单点击事件
-        val billClickCallback: (BillWithCategory) -> Unit = { billWithCategory ->
-
+        billAdapter = BillAdapter { billWithCategory ->
+            // 处理账单点击事件
         }
 
-        // 创建 BillAdapter 实例
-        billAdapter = BillAdapter(billClickCallback)
-
-        // 配置 RecyclerView
         mBinding.rvBills.apply {
             adapter = billAdapter
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-        }
-    }
-
-    private fun loadBillData() {
-        lifecycleScope.launch {
-            try {
-                val currentDate = getCurrentDate()
-                val ledgerId = currentLedger?.id ?: 1L
-
-                // 获取带分类信息的账单数据
-                val billsWithCategory = withContext(Dispatchers.IO) {
-                    database.billDao().getBillsByDate(
-                        date = parseDateToTimestamp(currentDate),
-                        ledgerId = ledgerId
-                    )
-                }
-                // 传递 BillWithCategory 列表给 Adapter
-                billAdapter.submitList(billsWithCategory)
-                calculateDailyBalance(ledgerId,currentDate)
-                mBinding.tvEmpty.visibility = if (billsWithCategory.isEmpty()) View.VISIBLE else View.GONE
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "加载账单失败", e)
-            }
         }
     }
 
