@@ -2,6 +2,7 @@ package com.xuhh.capybaraledger.ui.fragment.profile
 
 import com.xuhh.capybaraledger.databinding.FragmentProfileBinding
 import com.xuhh.capybaraledger.dialog.AboutDialog
+import com.xuhh.capybaraledger.dialog.FeedbackDialog
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 
 class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
@@ -15,6 +16,11 @@ class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
         // 设置关于我们的点击事件
         mBinding.llAbout.setOnClickListener {
             AboutDialog(requireContext()).show()
+        }
+        
+        // 设置反馈的点击事件
+        mBinding.llFeedback.setOnClickListener {
+            FeedbackDialog(requireContext()).show()
         }
     }
 }
