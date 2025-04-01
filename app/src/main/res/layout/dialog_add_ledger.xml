@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -19,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/select_ledger"
+            android:text="添加账本"
             android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -35,25 +36,34 @@
             android:contentDescription="@string/close" />
     </LinearLayout>
 
-    <!-- 账本列表 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_ledgers"
+    <!-- 账本名称输入框 -->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp" />
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        app:boxStrokeColor="@color/primary"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:hintTextColor="@color/text_secondary">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_ledger_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="账本名称"
+            android:inputType="text"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 完成按钮 -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddLedger"
+        android:id="@+id/btn_confirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="添加账本"
+        android:text="完成"
         android:textColor="@color/white"
         android:backgroundTint="@color/primary"
-        android:padding="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginHorizontal="16dp"
-        android:elevation="2dp"/>
+        android:padding="12dp"/>
 
 </LinearLayout> 

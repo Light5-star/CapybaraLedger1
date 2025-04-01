@@ -7,6 +7,7 @@ import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.DialogLedgerSelectorBinding
+import com.xuhh.capybaraledger.dialog.AddLedgerDialog
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +23,6 @@ class LedgerSelectorDialog(
     private lateinit var binding: DialogLedgerSelectorBinding
     private lateinit var adapter: LedgerSelectorAdapter
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
-    private var ledgerJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,18 +43,26 @@ class LedgerSelectorDialog(
             dismiss()
         }
 
-        // 设置RecyclerView
         setupRecyclerView()
+        setupAddButton()
         observeViewModel()
+    }
+
+    private fun setupAddButton() {
+        binding.btnAddLedger.setOnClickListener {
+            // 先关闭当前对话框
+            dismiss()
+            // 打开添加账本对话框
+            AddLedgerDialog(context, viewModel) {
+                // 完成后的回调
+            }.show()
+        }
     }
 
     private fun setupRecyclerView() {
         adapter = LedgerSelectorAdapter { ledger ->
-            coroutineScope.launch {
-                viewModel.updateCurrentLedger(ledger)
-                onLedgerSelected(ledger)
-                dismiss()
-            }
+            onLedgerSelected(ledger)
+            dismiss()
         }
 
         binding.rvLedgers.apply {
