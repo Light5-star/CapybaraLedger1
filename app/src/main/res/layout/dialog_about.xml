@@ -40,6 +40,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:text="版本 1.1"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="简单易用的本地记账工具，安全可靠，永久免费"
             android:textColor="@color/text_primary"
             android:textSize="14sp"
@@ -104,11 +112,24 @@
             android:textSize="14sp"/>
     </LinearLayout>
 
+    <!-- 了解更多 -->
+    <TextView
+        android:id="@+id/tv_learn_more"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:text="了解更多↗"
+        android:textColor="@color/primary"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:background="?attr/selectableItemBackground"/>
+
     <!-- 底部链接 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:gravity="center">
 
         <TextView
@@ -137,4 +158,5 @@
             android:padding="8dp"
             android:background="?attr/selectableItemBackground"/>
     </LinearLayout>
+
 </LinearLayout> 

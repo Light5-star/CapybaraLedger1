@@ -32,6 +32,11 @@ class AboutDialog(context: Context) : Dialog(context) {
         // 设置点击事件
         binding.btnClose.setOnClickListener { dismiss() }
         
+        // 了解更多点击事件
+        binding.tvLearnMore.setOnClickListener {
+            openUrl("http://cpledger.xuhh.site/")
+        }
+        
         binding.tvAgreement.setOnClickListener {
             openUrl("http://cpledger.xuhh.site/policy/agreement.html")
         }
