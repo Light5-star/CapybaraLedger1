@@ -7,6 +7,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsBinding
@@ -26,7 +27,7 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
         val app = requireActivity().application as App
         ViewModelFactory(app.ledgerRepository, app.billRepository)
     }
-    private val statisticsViewModel: StatisticsViewModel by viewModels()
+    private val statisticsViewModel: StatisticsViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,8 +39,12 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
 
     override fun initView() {
         super.initView()
-        setupViews()
-        observeViewModel()
+        setupViewPager()
+        setupLedgerSelector()
+        setupMonthSelector()
+        setupModeSwitch()
+        setupObservers()
+        updateModeUI()
     }
 
     private fun setupViews() {
@@ -50,13 +55,12 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
         setupMonthSelector()
     }
 
-    private fun observeViewModel() {
+    private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-            // 观察当前账本
             mViewModel.currentLedger.collect { ledger ->
                 ledger?.let {
                     mBinding.tvLedgerName.text = it.name
-                    loadBillData()
+                    loadStatisticsData()
                 }
             }
         }
@@ -65,9 +69,20 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
     private fun setupViewPager() {
         mBinding.viewPager.apply {
             isUserInputEnabled = false // 禁用滑动切换
-            // 添加缺失的适配器设置
-            adapter = StatisticsPagerAdapter(requireActivity())
+            adapter = StatisticsPagerAdapter(childFragmentManager, lifecycle)
         }
+
+        // 添加 ViewPager 切换监听
+        mBinding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                currentMode = when (position) {
+                    0 -> Mode.TREND
+                    1 -> Mode.RANK
+                    else -> Mode.TREND
+                }
+                updateModeUI()
+            }
+        })
     }
 
     private fun setupLedgerSelector() {
@@ -76,13 +91,18 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
                 requireContext(),
                 mViewModel
             ) { ledger ->
-                // 选择账本的处理已经在 Dialog 中完成
+                loadStatisticsData()
             }.show()
         }
     }
 
-    private fun loadBillData() {
-
+    private fun loadStatisticsData() {
+        val adapter = mBinding.viewPager.adapter as? StatisticsPagerAdapter
+        val currentFragment = adapter?.getCurrentFragment(mBinding.viewPager.currentItem)
+        when (currentFragment) {
+            is StatisticsTrendFragment -> currentFragment.loadData()
+            is StatisticsRankFragment -> currentFragment.loadData()
+        }
     }
 
     private fun updateModeUI() {
@@ -145,7 +165,7 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
         // 观察 Calendar 变化
         statisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
             updateMonthDisplay(calendar)
-            loadBillData()
+            loadStatisticsData()
         }
 
         mBinding.btnPrevMonth.setOnClickListener {

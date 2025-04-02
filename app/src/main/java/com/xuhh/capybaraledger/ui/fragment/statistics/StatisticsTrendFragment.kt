@@ -17,14 +17,21 @@ import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsTrendBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import com.xuhh.capybaraledger.application.App
 
 class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
-    private val viewModel: StatisticsViewModel by activityViewModels()
+    private val statisticsViewModel: StatisticsViewModel by activityViewModels()
+    private val mViewModel: BillViewModel by activityViewModels {
+        val app = requireActivity().application as App
+        ViewModelFactory(app.ledgerRepository, app.billRepository)
+    }
     private var currentType = TYPE_EXPENSE
     private var isViewCreated = false
 
@@ -47,9 +54,19 @@ class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
     }
 
     private fun setupObservers() {
-        viewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+        statisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
             if (isViewCreated && isResumed) {
                 loadData()
+            }
+        }
+
+        lifecycleScope.launch {
+            mViewModel.currentLedger.collect { ledger ->
+                ledger?.let {
+                    if (isViewCreated && isResumed) {
+                        loadData()
+                    }
+                }
             }
         }
     }
@@ -110,17 +127,14 @@ class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
         }
     }
 
-    private fun loadData() {
-        lifecycleScope.launch {
+    fun loadData() {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val database = AppDatabase.getInstance(requireContext())
-                val billDao = database.billDao()
-                val (startTime, endTime) = viewModel.getCurrentMonthRange()
-                val ledgerId = viewModel.currentLedgerId.value ?: 1L
+                val (startTime, endTime) = statisticsViewModel.getCurrentMonthRange()
+                val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
 
-                val bills = withContext(Dispatchers.IO) {
-                    billDao.getBillsByLedgerIdAndTimeRange(ledgerId, startTime, endTime)
-                }
+                val bills = mViewModel.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)
+                    .map { it.bill }
 
                 // 按日期分组统计数据
                 val dailyData = bills.groupBy { bill ->
@@ -133,50 +147,56 @@ class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
                     Triple(expense, income, income - expense)
                 }
 
-                // 创建图表数据
-                val entries = (1..31).map { day ->
-                    val (expense, income, balance) = dailyData[day] ?: Triple(0.0, 0.0, 0.0)
-                    val value = when (currentType) {
-                        TYPE_EXPENSE -> expense
-                        TYPE_INCOME -> income
-                        else -> balance
-                    }
-                    Entry(day.toFloat(), value.toFloat())
-                }
-
-                val dataSet = LineDataSet(entries, "").apply {
-                    color = when (currentType) {
-                        TYPE_EXPENSE -> Color.RED
-                        TYPE_INCOME -> Color.GREEN
-                        else -> Color.BLUE
-                    }
-                    setDrawCircles(true)
-                    setDrawValues(false)
-                    lineWidth = 2f
-                }
-
+                // 更新UI
                 withContext(Dispatchers.Main) {
-                    mBinding.lineChart.data = LineData(dataSet)
-                    mBinding.lineChart.invalidate()
-
-                    // 更新月度统计
-                    val monthTotal = when (currentType) {
-                        TYPE_EXPENSE -> bills.filter { it.type == Bill.TYPE_EXPENSE }.sumOf { it.amount }
-                        TYPE_INCOME -> bills.filter { it.type == Bill.TYPE_INCOME }.sumOf { it.amount }
-                        else -> bills.filter { it.type == Bill.TYPE_INCOME }.sumOf { it.amount } -
-                                bills.filter { it.type == Bill.TYPE_EXPENSE }.sumOf { it.amount }
-                    }
-                    mBinding.tvMonthAmount.text = String.format("%.2f", monthTotal)
-                    mBinding.tvMonthAmount.setTextColor(when (currentType) {
-                        TYPE_EXPENSE -> Color.RED
-                        TYPE_INCOME -> Color.GREEN
-                        else -> if (monthTotal >= 0) Color.GREEN else Color.RED
-                    })
+                    updateChart(dailyData)
+                    updateMonthTotal(bills)
                 }
             } catch (e: Exception) {
                 Log.e("StatisticsTrend", "Error loading data", e)
             }
         }
+    }
+
+    private fun updateChart(dailyData: Map<Int, Triple<Double, Double, Double>>) {
+        val entries = (1..31).map { day ->
+            val (expense, income, balance) = dailyData[day] ?: Triple(0.0, 0.0, 0.0)
+            val value = when (currentType) {
+                TYPE_EXPENSE -> expense
+                TYPE_INCOME -> income
+                else -> balance
+            }
+            Entry(day.toFloat(), value.toFloat())
+        }
+
+        val dataSet = LineDataSet(entries, "").apply {
+            color = when (currentType) {
+                TYPE_EXPENSE -> Color.RED
+                TYPE_INCOME -> Color.GREEN
+                else -> Color.BLUE
+            }
+            setDrawCircles(true)
+            setDrawValues(false)
+            lineWidth = 2f
+        }
+
+        mBinding.lineChart.data = LineData(dataSet)
+        mBinding.lineChart.invalidate()
+    }
+
+    private fun updateMonthTotal(bills: List<Bill>) {
+        val monthTotal = when (currentType) {
+            TYPE_EXPENSE -> bills.filter { it.type == Bill.TYPE_EXPENSE }.sumOf { it.amount }
+            TYPE_INCOME -> bills.filter { it.type == Bill.TYPE_INCOME }.sumOf { it.amount }
+            else -> bills.filter { it.type == Bill.TYPE_INCOME }.sumOf { it.amount } -
+                    bills.filter { it.type == Bill.TYPE_EXPENSE }.sumOf { it.amount }
+        }
+        mBinding.tvMonthAmount.text = String.format("%.2f", monthTotal)
+        mBinding.tvMonthAmount.setTextColor(when (currentType) {
+            TYPE_EXPENSE -> Color.RED
+            TYPE_INCOME -> Color.GREEN
+            else -> if (monthTotal >= 0) Color.GREEN else Color.RED
+        })
     }
 
     override fun onResume() {

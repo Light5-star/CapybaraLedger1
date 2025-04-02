@@ -12,6 +12,9 @@ import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.databinding.FragmentDetailsCalendarBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.viewmodel.DetailViewModel
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
+import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
+import com.xuhh.capybaraledger.application.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,6 +22,10 @@ import java.util.Calendar
 
 class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
     private val detailViewModel: DetailViewModel by activityViewModels()
+    private val mViewModel: BillViewModel by activityViewModels {
+        val app = requireActivity().application as App
+        ViewModelFactory(app.ledgerRepository, app.billRepository)
+    }
     private lateinit var calendarAdapter: CalendarAdapter
     private var currentLedgerId: Long = 1L
     private var isViewCreated = false
@@ -38,9 +45,19 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
     }
 
     private fun setupObservers() {
+        // 观察日历变化
         detailViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
-            if (isViewCreated && isResumed) {
+            if (isResumed) {
                 loadCalendarData()
+            }
+        }
+
+        // 观察当前账本变化
+        viewLifecycleOwner.lifecycleScope.launch {
+            mViewModel.currentLedger.collect { ledger ->
+                if (ledger != null && isResumed) {
+                    loadCalendarData()
+                }
             }
         }
     }
@@ -64,6 +81,7 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
             try {
                 val database = AppDatabase.getInstance(requireContext())
                 val billDao = database.billDao()
+                val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
 
                 // 使用 ViewModel 的时间范围
                 val (startTime, endTime) = detailViewModel.getCurrentMonthRange()
@@ -71,21 +89,13 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
                 Log.d("CalendarMode", "Loading data for month: $currentMonth, range: $startTime to $endTime")
 
                 val bills = withContext(Dispatchers.IO) {
-                    billDao.getBillsByLedgerIdAndTimeRange(currentLedgerId, startTime, endTime)
+                    billDao.getBillsByLedgerIdAndTimeRange(ledgerId, startTime, endTime)
                 }
                 Log.d("CalendarMode", "Loaded ${bills.size} bills for month $currentMonth")
 
-                // 处理日历数据
-                val calendarData = processCalendarData(
-                    bills,
-                    detailViewModel.calendar.value?.get(Calendar.YEAR) ?: 0,
-                    detailViewModel.calendar.value?.get(Calendar.MONTH) ?: 0
-                )
-
-                // 更新UI
+                // 处理数据和更新UI
                 withContext(Dispatchers.Main) {
-                    calendarAdapter.submitList(calendarData)
-                    Log.d("CalendarMode", "UI updated for month $currentMonth")
+                    updateCalendarView(bills)
                 }
             } catch (e: Exception) {
                 Log.e("CalendarMode", "Error loading data", e)
@@ -128,6 +138,16 @@ class CalendarModeFragment : BaseFragment<FragmentDetailsCalendarBinding>() {
         
         return calendarDays
     }
+
+    private fun updateCalendarView(bills: List<Bill>) {
+        val calendarData = processCalendarData(
+            bills,
+            detailViewModel.calendar.value?.get(Calendar.YEAR) ?: 0,
+            detailViewModel.calendar.value?.get(Calendar.MONTH) ?: 0
+        )
+        calendarAdapter.submitList(calendarData)
+    }
 }
+
 
 

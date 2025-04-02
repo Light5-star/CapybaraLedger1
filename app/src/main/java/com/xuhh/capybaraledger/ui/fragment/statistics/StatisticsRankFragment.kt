@@ -17,6 +17,7 @@ import com.xuhh.capybaraledger.adapter.CategoryRankItem
 import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
+import com.xuhh.capybaraledger.data.model.Category
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsRankBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
@@ -27,11 +28,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
-    private val viewModel: StatisticsViewModel by activityViewModels()
-    private lateinit var mViewModel: BillViewModel
+    private val statisticsViewModel: StatisticsViewModel by activityViewModels()
+    private val mViewModel: BillViewModel by activityViewModels {
+        val app = requireActivity().application as App
+        ViewModelFactory(app.ledgerRepository, app.billRepository)
+    }
     private var currentType = Bill.TYPE_EXPENSE
     private var isViewCreated = false
-    private lateinit var rankAdapter: CategoryRankAdapter
+    private lateinit var categoryRankAdapter: CategoryRankAdapter
 
     override fun initBinding(): FragmentStatisticsRankBinding {
         return FragmentStatisticsRankBinding.inflate(layoutInflater)
@@ -39,16 +43,9 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
 
     override fun initView() {
         super.initView()
-        val app = requireActivity().application as App
-        val factory = ViewModelFactory(app.ledgerRepository, app.billRepository)
-        mViewModel = ViewModelProvider(this, factory)[BillViewModel::class.java]
-
         setupPieChart()
         setupTypeRadioGroup()
         setupRecyclerView()
-        setupObservers()
-        
-        // 初始加载数据
         loadData()
     }
 
@@ -63,7 +60,7 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         }
 
         // 观察日期变化
-        viewModel.calendar.observe(viewLifecycleOwner) { calendar ->
+        statisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
             if (isViewCreated && isResumed) {
                 loadData()
             }
@@ -97,23 +94,20 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
     }
 
     private fun setupRecyclerView() {
-        rankAdapter = CategoryRankAdapter()
+        categoryRankAdapter = CategoryRankAdapter()
         mBinding.rvRank.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = rankAdapter
+            adapter = categoryRankAdapter
         }
     }
 
-    private fun loadData() {
-        lifecycleScope.launch {
+    fun loadData() {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val (startTime, endTime) = viewModel.getCurrentMonthRange()
+                val (startTime, endTime) = statisticsViewModel.getCurrentMonthRange()
                 val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
 
-                // 使用 BillViewModel 获取账单数据
-                val billsWithCategory = mViewModel.getBillsWithCategoryByTimeRange(
-                    ledgerId, startTime, endTime
-                )
+                val billsWithCategory = mViewModel.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)
 
                 // 按类别分组统计
                 val categoryData = billsWithCategory
@@ -123,51 +117,22 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
                     .toList()
                     .sortedByDescending { (_, amount) -> amount }
 
-                // 计算总金额
-                val totalAmount = categoryData.sumOf { it.second }
-
-                // 创建饼图数据
-                val entries = categoryData.map { (category, amount) ->
-                    PieEntry(amount.toFloat(), category.name)
-                }
-
-                // 创建排行榜数据
-                val rankItems = categoryData.map { (category, amount) ->
-                    CategoryRankItem(
-                        category = category.name,
-                        amount = amount,
-                        percentage = (amount / totalAmount).toFloat(),
-                        iconResId = getString(category.iconResId)
-                    )
-                }
-
-                // 更新 UI
+                // 更新UI
                 withContext(Dispatchers.Main) {
-                    if (entries.isEmpty()) {
-                        mBinding.contentView.visibility = View.GONE
-                        mBinding.llEmptyView.visibility = View.VISIBLE
-                    } else {
-                        mBinding.contentView.visibility = View.VISIBLE
-                        mBinding.llEmptyView.visibility = View.GONE
-                        
-                        // 更新饼图
-                        updatePieChart(entries)
-                        
-                        // 更新排行列表
-                        rankAdapter.submitList(rankItems)
-                    }
+                    updateRankList(categoryData)
+                    updatePieChart(categoryData)
                 }
             } catch (e: Exception) {
                 Log.e("StatisticsRank", "Error loading data", e)
-                withContext(Dispatchers.Main) {
-                    mBinding.contentView.visibility = View.GONE
-                    mBinding.llEmptyView.visibility = View.VISIBLE
-                }
             }
         }
     }
 
-    private fun updatePieChart(entries: List<PieEntry>) {
+    private fun updatePieChart(categoryData: List<Pair<Category, Double>>) {
+        val entries = categoryData.map { (category, amount) ->
+            PieEntry(amount.toFloat(), category.name)
+        }
+
         val colors = listOf(
             Color.rgb(255, 99, 71),
             Color.rgb(255, 165, 0),
@@ -189,6 +154,18 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
             centerText = if (currentType == Bill.TYPE_EXPENSE) "支出分布" else "收入分布"
             invalidate()
         }
+    }
+
+    private fun updateRankList(categoryData: List<Pair<Category, Double>>) {
+        val rankItems = categoryData.map { (category, amount) ->
+            CategoryRankItem(
+                category = category.name,
+                amount = amount,
+                percentage = (amount / categoryData.sumOf { it.second }).toFloat(),
+                iconResId = getString(category.iconResId)
+            )
+        }
+        categoryRankAdapter.submitList(rankItems)
     }
 
     override fun onResume() {
