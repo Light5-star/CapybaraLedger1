@@ -27,7 +27,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- 第一行：4个功能 -->
+                <!-- 第一行：3个功能 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,34 +59,6 @@
                             android:text="@string/tool_ledger"
                             android:textColor="@color/text_primary"
                             android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <!-- 分类管理 -->
-                    <LinearLayout
-                        android:id="@+id/ll_category"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:text="@string/icon_category"
-                            android:gravity="center"
-                            android:textSize="24sp"
-                            android:textColor="@color/primary"
-                            android:fontFamily="@font/iconfont"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/tool_category"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"/>
                     </LinearLayout>
 
                     <!-- 预算管理 -->
@@ -146,7 +118,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- 第二行：2个功能 -->
+                <!-- 第二行：3个功能 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -209,16 +181,34 @@
                             android:textSize="12sp"/>
                     </LinearLayout>
 
-                    <!-- 添加两个空的占位 View，保持对齐 -->
-                    <View
+                    <!-- 分类管理 -->
+                    <LinearLayout
+                        android:id="@+id/ll_category"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:visibility="invisible"
+                        android:background="?attr/selectableItemBackground">
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        <TextView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:text="@string/icon_category"
+                            android:gravity="center"
+                            android:textSize="24sp"
+                            android:textColor="@color/primary"
+                            android:fontFamily="@font/iconfont"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/tool_category"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
                 </LinearLayout>
 
             </LinearLayout>
@@ -244,6 +234,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
+                    android:visibility="gone"
                     android:gravity="center_vertical"
                     android:background="?attr/selectableItemBackground">
 

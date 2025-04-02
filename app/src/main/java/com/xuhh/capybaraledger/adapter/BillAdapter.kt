@@ -83,7 +83,12 @@ class BillAdapter(
 
     }
 
-    fun submitSortedList(newBills: List<BillWithCategory>) {
-        submitList(newBills.sortedByDescending { it.bill.date })
+    fun submitSortedList(list: List<BillWithCategory>) {
+        // 按时间倒序排序，优先按日期排序，日期相同则按具体时间排序
+        val sortedList = list.sortedWith(
+            compareByDescending<BillWithCategory> { it.bill.date }
+            .thenByDescending { it.bill.time }
+        )
+        super.submitList(sortedList)
     }
 }

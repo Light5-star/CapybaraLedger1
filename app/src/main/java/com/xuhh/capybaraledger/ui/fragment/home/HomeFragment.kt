@@ -25,6 +25,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         ViewModelFactory(app.ledgerRepository, app.billRepository)
     }
     private lateinit var billAdapter: BillAdapter
+    private var isViewCreated = false
 
     override fun initBinding(): FragmentHomeBinding {
         return FragmentHomeBinding.inflate(layoutInflater)
@@ -34,6 +35,14 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         super.initView()
         setupViews()
         observeViewModel()
+        isViewCreated = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isViewCreated) {
+            mViewModel.loadBillsForCurrentLedger()
+        }
     }
 
     private fun setupViews() {
@@ -56,7 +65,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         viewLifecycleOwner.lifecycleScope.launch {
             // 观察账单列表
             mViewModel.bills.collect { bills ->
-                billAdapter.submitList(bills)
+                billAdapter.submitSortedList(bills)
                 mBinding.tvEmpty.visibility = if (bills.isEmpty()) View.VISIBLE else View.GONE
             }
         }

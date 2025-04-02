@@ -77,7 +77,7 @@ class BillViewModel(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun loadBillsForCurrentLedger() {
+    fun loadBillsForCurrentLedger() {
         viewModelScope.launch {
             val currentDate = getCurrentDate()
             val ledgerId = _currentLedger.value?.id ?: return@launch
