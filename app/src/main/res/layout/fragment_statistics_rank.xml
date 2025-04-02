@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/accent">
 
     <!-- 主要内容 -->
     <LinearLayout
@@ -11,28 +12,36 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- 类型选择 -->
-        <RadioGroup
-            android:id="@+id/rg_type"
+        <!-- 类型选择 - 改用LinearLayout替代RadioGroup -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
 
-            <RadioButton
-                android:id="@+id/rb_expense"
+            <TextView
+                android:id="@+id/btn_expense"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
+                android:paddingHorizontal="16dp"
+                android:gravity="center"
                 android:text="@string/statistics_expense"
-                android:checked="true" />
+                android:textSize="14sp"
+                android:textColor="@color/accent"
+                android:background="@drawable/bg_mode_switch_item_selected"/>
 
-            <RadioButton
-                android:id="@+id/rb_income"
+            <TextView
+                android:id="@+id/btn_income"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/statistics_income" />
-        </RadioGroup>
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="16dp"
+                android:gravity="center"
+                android:text="@string/statistics_income"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:background="@drawable/bg_mode_switch_item"/>
+        </LinearLayout>
 
         <!-- 饼图 -->
         <com.github.mikephil.charting.charts.PieChart

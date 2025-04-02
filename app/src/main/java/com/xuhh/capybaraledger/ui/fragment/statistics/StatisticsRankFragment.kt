@@ -1,7 +1,9 @@
 package com.xuhh.capybaraledger.ui.fragment.statistics
 
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +24,8 @@ import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.content.ContextCompat
+import com.xuhh.capybaraledger.R
 
 class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
     private val statisticsViewModel: StatisticsViewModel by activityViewModels()
@@ -37,16 +41,18 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         return FragmentStatisticsRankBinding.inflate(layoutInflater)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun initView() {
         super.initView()
         setupPieChart()
-        setupTypeRadioGroup()
+        setupTypeButtons()
         setupRecyclerView()
         setupObservers()
         isViewCreated = true
         loadData()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupObservers() {
         // 观察账本变化
         lifecycleScope.launch {
@@ -82,14 +88,46 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         }
     }
 
-    private fun setupTypeRadioGroup() {
-        mBinding.rgType.setOnCheckedChangeListener { _, checkedId ->
-            currentType = when (checkedId) {
-                mBinding.rbExpense.id -> Bill.TYPE_EXPENSE
-                mBinding.rbIncome.id -> Bill.TYPE_INCOME
-                else -> Bill.TYPE_EXPENSE
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setupTypeButtons() {
+        mBinding.btnExpense.setOnClickListener {
+            if (currentType != Bill.TYPE_EXPENSE) {
+                currentType = Bill.TYPE_EXPENSE
+                updateTypeUI()
+                loadData()
             }
-            loadData()
+        }
+
+        mBinding.btnIncome.setOnClickListener {
+            if (currentType != Bill.TYPE_INCOME) {
+                currentType = Bill.TYPE_INCOME
+                updateTypeUI()
+                loadData()
+            }
+        }
+    }
+
+    private fun updateTypeUI() {
+        // 支出按钮
+        mBinding.btnExpense.apply {
+            setTextColor(ContextCompat.getColor(requireContext(), 
+                if (currentType == Bill.TYPE_EXPENSE) R.color.accent else R.color.text_primary))
+            setBackgroundResource(
+                if (currentType == Bill.TYPE_EXPENSE) 
+                    R.drawable.bg_mode_switch_item_selected
+                else 
+                    R.drawable.bg_mode_switch_item)
+        }
+
+        // 收入按钮
+        mBinding.btnIncome.apply {
+            setTextColor(ContextCompat.getColor(requireContext(), 
+                if (currentType == Bill.TYPE_INCOME) R.color.accent else R.color.text_primary))
+            setBackgroundResource(
+                if (currentType == Bill.TYPE_INCOME) 
+                    R.drawable.bg_mode_switch_item_selected 
+                else 
+                    R.drawable.bg_mode_switch_item)
         }
     }
 
@@ -101,6 +139,7 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -168,6 +207,7 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         categoryRankAdapter.submitList(rankItems)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         if (isViewCreated) {
