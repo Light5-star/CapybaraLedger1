@@ -19,6 +19,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 class BillViewModel(
     private val ledgerRepository: LedgerRepository,
     private val billRepository: BillRepository
