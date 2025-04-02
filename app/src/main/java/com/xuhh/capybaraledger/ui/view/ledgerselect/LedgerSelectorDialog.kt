@@ -2,8 +2,10 @@ package com.xuhh.capybaraledger.ui.view.ledgerselect
 
 import android.app.Dialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xuhh.capybaraledger.data.model.Ledger
 import com.xuhh.capybaraledger.databinding.DialogLedgerSelectorBinding
@@ -24,6 +26,7 @@ class LedgerSelectorDialog(
     private lateinit var adapter: LedgerSelectorAdapter
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DialogLedgerSelectorBinding.inflate(layoutInflater)
@@ -59,6 +62,7 @@ class LedgerSelectorDialog(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupRecyclerView() {
         adapter = LedgerSelectorAdapter { ledger ->
             // 更新当前账本
@@ -75,6 +79,7 @@ class LedgerSelectorDialog(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeViewModel() {
         coroutineScope.launch {
             // 观察当前账本

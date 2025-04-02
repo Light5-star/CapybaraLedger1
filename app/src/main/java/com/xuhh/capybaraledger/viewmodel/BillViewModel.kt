@@ -194,4 +194,20 @@ class BillViewModel(
         Log.d("BillViewModel", "Time range for month $month: ${startCalendar.time} to ${endCalendar.time}")
         return Pair(startTime, endTime)
     }
+
+    fun setDefaultLedger(ledgerId: Long) {
+        viewModelScope.launch {
+            ledgerRepository.setDefaultLedger(ledgerId)
+        }
+    }
+
+    fun deleteLedger(ledgerId: Long) {
+        viewModelScope.launch {
+            ledgerRepository.deleteLedger(ledgerId)
+        }
+    }
+
+    fun isLedgerNameExists(name: String): Boolean {
+        return _ledgers.value.any { it.name == name }
+    }
 }

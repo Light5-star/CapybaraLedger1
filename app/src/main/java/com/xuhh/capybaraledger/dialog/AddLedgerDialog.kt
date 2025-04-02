@@ -40,15 +40,23 @@ class AddLedgerDialog(
         // 设置完成按钮
         binding.btnConfirm.setOnClickListener {
             val name = binding.etLedgerName.text?.toString()?.trim()
-            if (name.isNullOrEmpty()) {
-                binding.etLedgerName.error = "请输入账本名称"
-                return@setOnClickListener
+            
+            when {
+                name.isNullOrEmpty() -> {
+                    binding.etLedgerName.error = "请输入账本名称"
+                    return@setOnClickListener
+                }
+                viewModel.isLedgerNameExists(name) -> {
+                    binding.etLedgerName.error = "账本名称已存在"
+                    return@setOnClickListener
+                }
+                else -> {
+                    // 创建账本
+                    viewModel.createLedger(name)
+                    onComplete()
+                    dismiss()
+                }
             }
-
-            // 创建账本
-            viewModel.createLedger(name)
-            onComplete()
-            dismiss()
         }
     }
 } 

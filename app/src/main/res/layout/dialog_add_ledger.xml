@@ -25,15 +25,12 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <TextView
+        <ImageView
             android:id="@+id/btn_close"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:text="X"
-            android:textSize="20dp"
-            android:gravity="center"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/close" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>
 
     <!-- 账本名称输入框 -->
