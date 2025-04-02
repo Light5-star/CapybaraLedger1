@@ -230,7 +230,8 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             app:cardCornerRadius="8dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            android:background="?attr/selectableItemBackground">
 
             <LinearLayout
                 android:layout_width="match_parent"
