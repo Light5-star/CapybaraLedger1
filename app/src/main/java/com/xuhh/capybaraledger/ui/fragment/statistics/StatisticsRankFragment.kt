@@ -1,12 +1,9 @@
 package com.xuhh.capybaraledger.ui.fragment.statistics
 
 import android.graphics.Color
-import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -15,13 +12,12 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import com.xuhh.capybaraledger.adapter.CategoryRankAdapter
 import com.xuhh.capybaraledger.adapter.CategoryRankItem
 import com.xuhh.capybaraledger.application.App
-import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.data.model.Category
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsRankBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
-import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
+import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
 import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +42,8 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         setupPieChart()
         setupTypeRadioGroup()
         setupRecyclerView()
+        setupObservers()
+        isViewCreated = true
         loadData()
     }
 
@@ -54,7 +52,9 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
         lifecycleScope.launch {
             mViewModel.currentLedger.collect { ledger ->
                 ledger?.let {
-                    loadData()
+                    if (isViewCreated && isResumed) {
+                        loadData()
+                    }
                 }
             }
         }
@@ -104,7 +104,7 @@ class StatisticsRankFragment : BaseFragment<FragmentStatisticsRankBinding>() {
     fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val (startTime, endTime) = statisticsViewModel.getCurrentMonthRange()
+                val (startTime, endTime) = mViewModel.getCurrentMonthRange()
                 val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
 
                 val billsWithCategory = mViewModel.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)

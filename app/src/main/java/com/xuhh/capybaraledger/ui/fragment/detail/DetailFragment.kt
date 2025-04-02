@@ -3,8 +3,6 @@ package com.xuhh.capybaraledger.ui.fragment.detail
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.R
@@ -13,7 +11,6 @@ import com.xuhh.capybaraledger.databinding.FragmentDetailsBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.view.ledgerselect.LedgerSelectorDialog
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
-import com.xuhh.capybaraledger.viewmodel.DetailViewModel
 import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -23,7 +20,6 @@ import java.util.Locale
 
 class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
     private var currentMode = Mode.FLOW
-    private val mDetailViewModel: DetailViewModel by viewModels()
     private val mViewModel: BillViewModel by activityViewModels {
         val app = requireActivity().application as App
         ViewModelFactory(app.ledgerRepository, app.billRepository)
@@ -70,14 +66,34 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
         }
     }
 
+    private fun setupMonthSelector() {
+        // 观察月份变化
+        viewLifecycleOwner.lifecycleScope.launch {
+            mViewModel.currentCalendar.collect { calendar ->
+                updateMonthDisplay(calendar)
+                loadBillData()
+            }
+        }
+
+        mBinding.btnPrevMonth.setOnClickListener {
+            mViewModel.backMonth()
+        }
+
+        mBinding.btnNextMonth.setOnClickListener {
+            mViewModel.nextMonth()
+        }
+    }
+
+    private fun updateMonthDisplay(calendar: Calendar) {
+        val sdf = SimpleDateFormat("yyyy年MM月", Locale.getDefault())
+        mBinding.tvMonth.text = sdf.format(calendar.time)
+    }
+
     private fun loadBillData() {
         lifecycleScope.launch {
             try {
                 val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
-                val currentDate = mDetailViewModel.getCurrentDate()
-                
-                // 使用 ViewModel 获取账单数据
-                val bills = mViewModel.getBillsByDate(currentDate, ledgerId)
+                val (startTime, endTime) = mViewModel.getCurrentMonthRange()
                 
                 // 更新当前显示的 Fragment
                 val adapter = mBinding.viewPager.adapter as? DetailPagerAdapter
@@ -85,11 +101,9 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
                 
                 when (currentFragment) {
                     is FlowModeFragment -> {
-                        Log.d("DetailFragment", "Loading flow mode data")
                         currentFragment.loadBillData()
                     }
                     is CalendarModeFragment -> {
-                        Log.d("DetailFragment", "Loading calendar mode data")
                         currentFragment.loadCalendarData()
                     }
                 }
@@ -171,30 +185,6 @@ class DetailFragment: BaseFragment<FragmentDetailsBinding>() {
                 }
             )
         }
-    }
-
-    private fun setupMonthSelector() {
-        mDetailViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
-            Log.d("DetailFragment", "Calendar changed: month=${calendar.get(Calendar.MONTH)}")
-            updateMonthDisplay(calendar)
-            loadBillData()
-        }
-
-        mBinding.btnPrevMonth.setOnClickListener {
-            Log.d("DetailFragment", "Previous month clicked")
-            mDetailViewModel.backMonth()
-        }
-
-        mBinding.btnNextMonth.setOnClickListener {
-            Log.d("DetailFragment", "Next month clicked")
-            mDetailViewModel.nextMonth()
-        }
-    }
-
-    // 更新日期显示方法
-    private fun updateMonthDisplay(calendar: Calendar) {
-        val sdf = SimpleDateFormat("yyyy年M月", Locale.getDefault())
-        mBinding.tvMonth.text = sdf.format(calendar.time)
     }
 
     private enum class Mode {

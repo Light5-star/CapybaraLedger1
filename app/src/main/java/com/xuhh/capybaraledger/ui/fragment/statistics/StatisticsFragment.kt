@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.R
@@ -162,24 +160,25 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
     }
 
     private fun setupMonthSelector() {
-        // 观察 Calendar 变化
-        statisticsViewModel.calendar.observe(viewLifecycleOwner) { calendar ->
-            updateMonthDisplay(calendar)
-            loadStatisticsData()
+        // 观察月份变化
+        viewLifecycleOwner.lifecycleScope.launch {
+            mViewModel.currentCalendar.collect { calendar ->
+                updateMonthDisplay(calendar)
+                loadStatisticsData()
+            }
         }
 
         mBinding.btnPrevMonth.setOnClickListener {
-            statisticsViewModel.backMonth()
+            mViewModel.backMonth()
         }
 
         mBinding.btnNextMonth.setOnClickListener {
-            statisticsViewModel.nextMonth()
+            mViewModel.nextMonth()
         }
     }
 
-    // 更新日期显示方法
     private fun updateMonthDisplay(calendar: Calendar) {
-        val sdf = SimpleDateFormat("yyyy年M月", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy年MM月", Locale.getDefault())
         mBinding.tvMonth.text = sdf.format(calendar.time)
     }
 

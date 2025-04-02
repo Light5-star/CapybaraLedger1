@@ -11,20 +11,17 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.xuhh.capybaraledger.R
-import com.xuhh.capybaraledger.data.database.AppDatabase
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsTrendBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
+import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
 import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
-import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.*
-import com.xuhh.capybaraledger.application.App
+import java.util.Calendar
 
 class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
     private val statisticsViewModel: StatisticsViewModel by activityViewModels()
@@ -130,7 +127,7 @@ class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
     fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val (startTime, endTime) = statisticsViewModel.getCurrentMonthRange()
+                val (startTime, endTime) = mViewModel.getCurrentMonthRange()
                 val ledgerId = mViewModel.currentLedger.value?.id ?: return@launch
 
                 val bills = mViewModel.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)
