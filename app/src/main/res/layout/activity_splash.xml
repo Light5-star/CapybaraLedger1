@@ -9,7 +9,7 @@
         android:id="@+id/iv_logo"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:src="@drawable/capybara_without_background"
+        android:src="@drawable/capybara_without_background_1"
         app:layout_constraintBottom_toTopOf="@id/tv_app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
