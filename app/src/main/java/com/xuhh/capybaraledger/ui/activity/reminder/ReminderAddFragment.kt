@@ -8,14 +8,17 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.application.App
+import com.xuhh.capybaraledger.data.model.Reminder
 import com.xuhh.capybaraledger.data.model.ReminderNotifyType
 import com.xuhh.capybaraledger.data.model.ReminderRepeatType
 import com.xuhh.capybaraledger.databinding.FragmentReminderAddBinding
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.viewmodel.ReminderViewModel
+import kotlinx.coroutines.launch
 
 class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     private val viewModel: ReminderViewModel by activityViewModels { 
@@ -30,6 +33,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     private var isOddWeek: Boolean = true  // 单双休时是否为单周
     private var currentNotifyType = ReminderNotifyType.NOTIFICATION
     private var reminderName: String = ""
+    private var editingReminder: Reminder? = null  // 当前正在编辑的提醒
 
     override fun initBinding(): FragmentReminderAddBinding {
         return FragmentReminderAddBinding.inflate(layoutInflater)
@@ -38,6 +42,13 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
+        
+        // 获取要编辑的提醒
+        arguments?.getLong("reminder_id", -1)?.let { id ->
+            if (id != -1L) {
+                loadReminder(id)
+            }
+        }
     }
 
     private fun setupViews() {
@@ -285,6 +296,27 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         dialog.show()
     }
 
+    private fun loadReminderData(reminder: Reminder) {
+        // 加载提醒数据到界面
+        reminderName = reminder.name
+        mBinding.tvNameValue.text = reminderName
+
+        // 设置时间
+        val (hours, minutes) = reminder.time.split(":").map { it.toInt() }
+        mBinding.timePicker.hour = hours
+        mBinding.timePicker.minute = minutes
+
+        // 设置重复类型
+        currentRepeatType = reminder.repeatType
+        customDays = reminder.customDays
+        isOddWeek = reminder.isOddWeek ?: true
+        updateRepeatTypeText()
+
+        // 设置提醒方式
+        currentNotifyType = reminder.notifyType
+        updateNotifyTypeText()
+    }
+
     fun saveReminder(): Boolean {
         if (reminderName.isBlank()) {
             Toast.makeText(requireContext(), "请输入提醒名称", Toast.LENGTH_SHORT).show()
@@ -296,21 +328,51 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         val minute = mBinding.timePicker.minute
         val time = String.format("%02d:%02d", hour, minute)
 
-        // 获取提醒方式
-        val notifyType = currentNotifyType
-
-        // 保存闹钟
-        viewModel.createReminder(
-            name = reminderName,
-            time = time,
-            repeatType = currentRepeatType,
-            customDays = if (currentRepeatType == ReminderRepeatType.CUSTOM) customDays else null,
-            isOddWeek = if (currentRepeatType == ReminderRepeatType.ALTERNATE_REST) isOddWeek else null,
-            notifyType = notifyType
-        )
+        if (editingReminder != null) {
+            // 更新提醒
+            viewModel.updateReminder(
+                editingReminder!!.copy(
+                    name = reminderName,
+                    time = time,
+                    repeatType = currentRepeatType,
+                    customDays = if (currentRepeatType == ReminderRepeatType.CUSTOM) customDays else null,
+                    isOddWeek = if (currentRepeatType == ReminderRepeatType.ALTERNATE_REST) isOddWeek else null,
+                    notifyType = currentNotifyType
+                )
+            )
+        } else {
+            // 创建新提醒
+            viewModel.createReminder(
+                name = reminderName,
+                time = time,
+                repeatType = currentRepeatType,
+                customDays = if (currentRepeatType == ReminderRepeatType.CUSTOM) customDays else null,
+                isOddWeek = if (currentRepeatType == ReminderRepeatType.ALTERNATE_REST) isOddWeek else null,
+                notifyType = currentNotifyType
+            )
+        }
 
         // 返回列表页面
         (activity as? ReminderManagerActivity)?.navigateToList()
         return true
+    }
+
+    fun loadReminder(reminderId: Long) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            editingReminder = viewModel.getReminder(reminderId)
+            editingReminder?.let { reminder ->
+                loadReminderData(reminder)
+            }
+        }
+    }
+
+    companion object {
+        fun newInstance(reminderId: Long? = null): ReminderAddFragment {
+            return ReminderAddFragment().apply {
+                arguments = Bundle().apply {
+                    reminderId?.let { putLong("reminder_id", it) }
+                }
+            }
+        }
     }
 } 

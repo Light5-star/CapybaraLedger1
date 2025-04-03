@@ -61,10 +61,23 @@ class ReminderManagerActivity : BaseActivity<ActivityReminderManageBinding>() {
         }
     }
 
+    fun navigateToEdit(reminderId: Long) {
+        mBinding.viewPager.currentItem = 1
+        mBinding.tvTitle.text = "编辑提醒"
+        mBinding.btnAdd.text = "保存"
+        
+        // 使用 viewPager 的 id
+        pagerAdapter.getFragment(1)?.let { fragment ->
+            if (fragment is ReminderAddFragment) {
+                fragment.loadReminder(reminderId)
+            }
+        }
+    }
+
     fun navigateToAddReminder() {
         mBinding.viewPager.currentItem = 1
         mBinding.tvTitle.text = "添加提醒"
-        mBinding.btnAdd.text = "保存"  // 修改按钮文字为"保存"
+        mBinding.btnAdd.text = "保存"
     }
 
     fun navigateToList() {

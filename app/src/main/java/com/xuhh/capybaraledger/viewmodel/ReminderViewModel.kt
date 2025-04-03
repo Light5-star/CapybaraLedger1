@@ -56,6 +56,12 @@ class ReminderViewModel(
     fun updateReminder(reminder: Reminder) {
         viewModelScope.launch {
             repository.updateReminder(reminder)
+            // 更新闹钟
+            if (reminder.isEnabled) {
+                AlarmHelper.scheduleReminder(context, reminder)
+            } else {
+                AlarmHelper.cancelReminder(context, reminder.id)
+            }
         }
     }
 
@@ -119,6 +125,10 @@ class ReminderViewModel(
             ReminderNotifyType.VIBRATE -> "振动"
             ReminderNotifyType.RING_VIBRATE -> "响铃和振动"
         }
+    }
+
+    suspend fun getReminder(id: Long): Reminder? {
+        return repository.getReminder(id)
     }
 
     // ViewModel Factory

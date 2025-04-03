@@ -14,6 +14,7 @@ class ReminderListAdapter : ListAdapter<Reminder, ReminderListAdapter.ViewHolder
 ) {
 
     var onSwitchChanged: ((Reminder, Boolean) -> Unit)? = null
+    var onItemClick: ((Reminder) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemReminderBinding.inflate(
@@ -27,6 +28,15 @@ class ReminderListAdapter : ListAdapter<Reminder, ReminderListAdapter.ViewHolder
     }
 
     inner class ViewHolder(private val binding: ItemReminderBinding) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onItemClick?.invoke(getItem(position))
+                }
+            }
+        }
+
         fun bind(reminder: Reminder) {
             binding.tvTime.text = reminder.time
             binding.tvRepeat.text = when (reminder.repeatType) {

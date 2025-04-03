@@ -47,6 +47,10 @@ class ReminderListFragment : BaseFragment<FragmentReminderListBinding>() {
         reminderAdapter.onSwitchChanged = { reminder, isEnabled ->
             viewModel.updateReminderEnabled(reminder.id, isEnabled)
         }
+
+        reminderAdapter.onItemClick = { reminder ->
+            (activity as? ReminderManagerActivity)?.navigateToEdit(reminder.id)
+        }
     }
 
     private fun observeReminders() {
