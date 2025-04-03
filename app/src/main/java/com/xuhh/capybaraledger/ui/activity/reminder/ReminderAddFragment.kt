@@ -28,7 +28,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     private var currentRepeatType = ReminderRepeatType.ONCE
     private var customDays: List<Int>? = null
     private var isOddWeek: Boolean = true  // 单双休时是否为单周
-    private var currentNotifyType = ReminderNotifyType.RING
+    private var currentNotifyType = ReminderNotifyType.NOTIFICATION
     private var reminderName: String = ""
 
     override fun initBinding(): FragmentReminderAddBinding {
@@ -228,52 +228,34 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_notify_type, null)
         dialog.setContentView(dialogView)
 
-        // 创建临时变量存储选择状态
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_notify_type)
         var tempNotifyType = currentNotifyType
 
-        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_notify_type)
-
         // 设置当前选中状态
-        radioGroup.check(when (tempNotifyType) {
-            ReminderNotifyType.NOTIFICATION -> R.id.rb_notification
-            ReminderNotifyType.RING -> R.id.rb_ring
-            ReminderNotifyType.VIBRATE -> R.id.rb_vibrate
-            ReminderNotifyType.RING_VIBRATE -> R.id.rb_ring_vibrate
-        })
+        radioGroup.check(R.id.rb_notification)  // 默认选中通知
 
-        // 设置底部按钮点击事件
+        // 选择监听
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            tempNotifyType = ReminderNotifyType.NOTIFICATION  // 始终使用通知
+        }
+
+        // 取消按钮
         dialogView.findViewById<TextView>(R.id.btn_cancel).setOnClickListener {
             dialog.dismiss()
         }
 
+        // 确认按钮
         dialogView.findViewById<TextView>(R.id.btn_confirm).setOnClickListener {
             currentNotifyType = tempNotifyType
             updateNotifyTypeText()
             dialog.dismiss()
         }
 
-        // 选择监听
-        radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            tempNotifyType = when (checkedId) {
-                R.id.rb_notification -> ReminderNotifyType.NOTIFICATION
-                R.id.rb_ring -> ReminderNotifyType.RING
-                R.id.rb_vibrate -> ReminderNotifyType.VIBRATE
-                R.id.rb_ring_vibrate -> ReminderNotifyType.RING_VIBRATE
-                else -> ReminderNotifyType.NOTIFICATION
-            }
-        }
-
         dialog.show()
     }
 
     private fun updateNotifyTypeText() {
-        val text = when (currentNotifyType) {
-            ReminderNotifyType.RING -> "响铃"
-            ReminderNotifyType.VIBRATE -> "振动"
-            ReminderNotifyType.RING_VIBRATE -> "响铃和振动"
-            ReminderNotifyType.NOTIFICATION -> "通知"
-        }
-        mBinding.llNotify.tvNotifyValue.text = text
+        mBinding.llNotify.tvNotifyValue.text = "通知"  // 始终显示通知
     }
 
     private fun showNameDialog() {

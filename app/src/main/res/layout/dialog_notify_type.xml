@@ -29,9 +29,11 @@
             android:id="@+id/rb_notification"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:checked="true"
             android:text="通知" />
 
+        <!-- 暂时隐藏其他选项 -->
+        <!--
         <RadioButton
             android:id="@+id/rb_ring"
             android:layout_width="match_parent"
@@ -51,6 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="响铃和振动" />
+        -->
 
     </RadioGroup>
 
