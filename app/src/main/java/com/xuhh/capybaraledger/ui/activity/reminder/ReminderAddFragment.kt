@@ -286,7 +286,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
 
         dialogView.findViewById<TextView>(R.id.btn_confirm).setOnClickListener {
             val name = etName.text.toString().trim()
-            if (name.isBlank()) {
+        if (name.isBlank()) {
                 Toast.makeText(requireContext(), "请输入提醒名称", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }

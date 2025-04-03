@@ -37,7 +37,16 @@ class ReminderManagerActivity : BaseActivity<ActivityReminderManageBinding>() {
         }
 
         mBinding.btnAdd.setOnClickListener {
-            navigateToAddReminder()
+            if (mBinding.viewPager.currentItem == 0) {
+                // 在列表页面，点击进入添加页面
+                navigateToAddReminder()
+            } else {
+                // 在添加页面，点击执行保存
+                val fragment = pagerAdapter.getFragment(1) as? ReminderAddFragment
+                if (fragment?.saveReminder() == true) {
+                    navigateToList()
+                }
+            }
         }
     }
 
@@ -52,11 +61,13 @@ class ReminderManagerActivity : BaseActivity<ActivityReminderManageBinding>() {
     fun navigateToAddReminder() {
         mBinding.viewPager.currentItem = 1
         mBinding.tvTitle.text = "添加提醒"
+        mBinding.btnAdd.text = "保存"  // 修改按钮文字为"保存"
     }
 
     fun navigateToList() {
         mBinding.viewPager.currentItem = 0
         mBinding.tvTitle.text = "记账提醒"
+        mBinding.btnAdd.text = "添加"  // 修改按钮文字为"添加"
     }
 
     override fun onBackPressed() {
