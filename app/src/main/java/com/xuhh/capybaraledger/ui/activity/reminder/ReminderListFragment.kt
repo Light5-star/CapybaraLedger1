@@ -22,14 +22,7 @@ class ReminderListFragment : BaseFragment<FragmentReminderListBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupViews()
         observeReminders()
-    }
-
-    private fun setupViews() {
-        mBinding.btnAdd.setOnClickListener {
-            (activity as? ReminderManagerActivity)?.navigateToAddReminder()
-        }
     }
 
     private fun observeReminders() {

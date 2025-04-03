@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.model.ReminderNotifyType
 import com.xuhh.capybaraledger.data.model.ReminderRepeatType
 import com.xuhh.capybaraledger.databinding.FragmentReminderAddBinding
@@ -11,7 +12,9 @@ import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.viewmodel.ReminderViewModel
 
 class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
-    private val viewModel: ReminderViewModel by activityViewModels()
+    private val viewModel: ReminderViewModel by activityViewModels { 
+        ReminderViewModel.Factory((requireActivity().application as App).reminderRepository)
+    }
 
     override fun initBinding(): FragmentReminderAddBinding {
         return FragmentReminderAddBinding.inflate(layoutInflater)
@@ -23,26 +26,16 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     }
 
     private fun setupViews() {
-        // 返回按钮
-        mBinding.btnBack.setOnClickListener {
-            (activity as? ReminderManagerActivity)?.navigateToList()
-        }
-
-        // 保存按钮
-        mBinding.btnSave.setOnClickListener {
-            saveReminder()
-        }
-
         // 设置默认选中项
         mBinding.rgRepeatType.check(mBinding.rbOnce.id)
         mBinding.rgNotifyType.check(mBinding.rbRing.id)
     }
 
-    private fun saveReminder() {
+    fun saveReminder(): Boolean {
         val name = mBinding.etName.text.toString()
         if (name.isBlank()) {
             Toast.makeText(requireContext(), "请输入提醒名称", Toast.LENGTH_SHORT).show()
-            return
+            return false
         }
 
         // 获取时间
@@ -76,5 +69,6 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
 
         // 返回列表页面
         (activity as? ReminderManagerActivity)?.navigateToList()
+        return true
     }
 } 
