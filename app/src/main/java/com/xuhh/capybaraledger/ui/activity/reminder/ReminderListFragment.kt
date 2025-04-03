@@ -17,7 +17,7 @@ class ReminderListFragment : BaseFragment<FragmentReminderListBinding>() {
         ReminderViewModel.Factory((requireActivity().application as App).reminderRepository)
     }
     
-    private val adapter = ReminderListAdapter()
+    private val reminderAdapter = ReminderListAdapter()
 
     override fun initBinding(): FragmentReminderListBinding {
         return FragmentReminderListBinding.inflate(layoutInflater)
@@ -31,11 +31,11 @@ class ReminderListFragment : BaseFragment<FragmentReminderListBinding>() {
 
     private fun setupRecyclerView() {
         mBinding.recyclerView.apply {
-            adapter = this@ReminderListFragment.adapter
+            adapter = reminderAdapter
             layoutManager = LinearLayoutManager(context)
         }
 
-        adapter.onSwitchChanged = { reminder, isEnabled ->
+        reminderAdapter.onSwitchChanged = { reminder, isEnabled ->
             viewModel.updateReminderEnabled(reminder.id, isEnabled)
         }
     }
@@ -43,7 +43,7 @@ class ReminderListFragment : BaseFragment<FragmentReminderListBinding>() {
     private fun observeReminders() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.reminders.collectLatest { reminders ->
-                adapter.submitList(reminders)
+                reminderAdapter.submitList(reminders)
                 mBinding.tvEmpty.visibility = if (reminders.isEmpty()) View.VISIBLE else View.GONE
             }
         }

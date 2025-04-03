@@ -7,6 +7,7 @@ import com.xuhh.capybaraledger.dialog.FeedbackDialog
 import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.activity.ledger.LedgerManageActivity
 import com.xuhh.capybaraledger.ui.activity.reminder.ReminderManagerActivity
+import com.xuhh.capybaraledger.ui.activity.theme.ThemeSettingsActivity
 
 class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
     override fun initBinding(): FragmentProfileBinding {
@@ -32,6 +33,10 @@ class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
 
         mBinding.llReminder.setOnClickListener {
             startActivity(Intent(requireContext(), ReminderManagerActivity::class.java))
+        }
+
+        mBinding.llTheme.setOnClickListener {
+            startActivity(Intent(requireContext(), ThemeSettingsActivity::class.java))
         }
     }
 }

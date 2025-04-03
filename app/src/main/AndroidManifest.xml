@@ -39,6 +39,9 @@
         <activity
             android:name=".ui.activity.reminder.ReminderManagerActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.activity.theme.ThemeSettingsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
