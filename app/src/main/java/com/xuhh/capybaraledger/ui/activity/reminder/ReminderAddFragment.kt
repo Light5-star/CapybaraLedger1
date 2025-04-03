@@ -1,6 +1,5 @@
 package com.xuhh.capybaraledger.ui.activity.reminder
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +19,10 @@ import com.xuhh.capybaraledger.viewmodel.ReminderViewModel
 
 class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     private val viewModel: ReminderViewModel by activityViewModels { 
-        ReminderViewModel.Factory((requireActivity().application as App).reminderRepository)
+        ReminderViewModel.Factory(
+            (requireActivity().application as App).reminderRepository,
+            requireContext()
+        )
     }
     
     private var currentRepeatType = ReminderRepeatType.ONCE
@@ -233,6 +235,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
 
         // 设置当前选中状态
         radioGroup.check(when (tempNotifyType) {
+            ReminderNotifyType.NOTIFICATION -> R.id.rb_notification
             ReminderNotifyType.RING -> R.id.rb_ring
             ReminderNotifyType.VIBRATE -> R.id.rb_vibrate
             ReminderNotifyType.RING_VIBRATE -> R.id.rb_ring_vibrate
@@ -252,10 +255,11 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         // 选择监听
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
             tempNotifyType = when (checkedId) {
+                R.id.rb_notification -> ReminderNotifyType.NOTIFICATION
                 R.id.rb_ring -> ReminderNotifyType.RING
                 R.id.rb_vibrate -> ReminderNotifyType.VIBRATE
                 R.id.rb_ring_vibrate -> ReminderNotifyType.RING_VIBRATE
-                else -> ReminderNotifyType.RING
+                else -> ReminderNotifyType.NOTIFICATION
             }
         }
 
@@ -267,6 +271,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
             ReminderNotifyType.RING -> "响铃"
             ReminderNotifyType.VIBRATE -> "振动"
             ReminderNotifyType.RING_VIBRATE -> "响铃和振动"
+            ReminderNotifyType.NOTIFICATION -> "通知"
         }
         mBinding.llNotify.tvNotifyValue.text = text
     }

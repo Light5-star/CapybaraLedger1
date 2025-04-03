@@ -9,8 +9,11 @@ interface ReminderDao {
     @Query("SELECT * FROM reminders ORDER BY time ASC")
     fun getAllReminders(): Flow<List<Reminder>>
     
-    @Insert
-    suspend fun insertReminder(reminder: Reminder)
+    @Query("SELECT * FROM reminders WHERE id = :id")
+    suspend fun getReminder(id: Long): Reminder?
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReminder(reminder: Reminder): Long
     
     @Update
     suspend fun updateReminder(reminder: Reminder)
@@ -20,4 +23,7 @@ interface ReminderDao {
     
     @Query("UPDATE reminders SET isEnabled = :isEnabled WHERE id = :id")
     suspend fun updateReminderEnabled(id: Long, isEnabled: Boolean)
+
+    @Query("SELECT * FROM reminders WHERE isEnabled = 1")
+    suspend fun getAllEnabledReminders(): List<Reminder>
 } 

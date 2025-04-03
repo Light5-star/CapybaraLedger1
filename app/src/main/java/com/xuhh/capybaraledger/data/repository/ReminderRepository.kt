@@ -12,9 +12,14 @@ class ReminderRepository(
         return reminderDao.getAllReminders()
     }
 
+    // 获取单个提醒
+    suspend fun getReminder(id: Long): Reminder? {
+        return reminderDao.getReminder(id)
+    }
+
     // 添加提醒
-    suspend fun insertReminder(reminder: Reminder) {
-        reminderDao.insertReminder(reminder)
+    suspend fun insertReminder(reminder: Reminder): Long {
+        return reminderDao.insertReminder(reminder)
     }
 
     // 更新提醒
@@ -30,5 +35,9 @@ class ReminderRepository(
     // 更新提醒的启用状态
     suspend fun updateReminderEnabled(id: Long, isEnabled: Boolean) {
         reminderDao.updateReminderEnabled(id, isEnabled)
+    }
+
+    suspend fun getAllEnabledReminders(): List<Reminder> {
+        return reminderDao.getAllEnabledReminders()
     }
 } 

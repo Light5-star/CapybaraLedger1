@@ -14,7 +14,10 @@ class ReminderManagerActivity : BaseActivity<ActivityReminderManageBinding>() {
     private lateinit var pagerAdapter: ReminderPagerAdapter
 
     private val viewModel: ReminderViewModel by viewModels { 
-        ReminderViewModel.Factory((application as App).reminderRepository)
+        ReminderViewModel.Factory(
+            (application as App).reminderRepository,
+            this
+        )
     }
 
     override fun initBinding(): ActivityReminderManageBinding {

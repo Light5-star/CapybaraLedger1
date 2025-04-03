@@ -26,6 +26,13 @@
         android:padding="16dp">
 
         <RadioButton
+            android:id="@+id/rb_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="通知" />
+
+        <RadioButton
             android:id="@+id/rb_ring"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

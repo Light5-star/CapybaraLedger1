@@ -1,5 +1,6 @@
 package com.xuhh.capybaraledger.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -7,13 +8,15 @@ import com.xuhh.capybaraledger.data.model.Reminder
 import com.xuhh.capybaraledger.data.model.ReminderNotifyType
 import com.xuhh.capybaraledger.data.model.ReminderRepeatType
 import com.xuhh.capybaraledger.data.repository.ReminderRepository
+import com.xuhh.capybaraledger.utils.AlarmHelper
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ReminderViewModel(
-    private val repository: ReminderRepository
+    private val repository: ReminderRepository,
+    private val context: Context
 ) : ViewModel() {
 
     // 所有提醒列表
@@ -42,7 +45,10 @@ class ReminderViewModel(
             notifyType = notifyType
         )
         viewModelScope.launch {
-            repository.insertReminder(reminder)
+            val id = repository.insertReminder(reminder)
+            if (reminder.isEnabled) {
+                AlarmHelper.scheduleReminder(context, reminder.copy(id = id))
+            }
         }
     }
 
@@ -64,6 +70,15 @@ class ReminderViewModel(
     fun updateReminderEnabled(id: Long, isEnabled: Boolean) {
         viewModelScope.launch {
             repository.updateReminderEnabled(id, isEnabled)
+            
+            // 根据启用状态设置或取消提醒
+            if (isEnabled) {
+                repository.getReminder(id)?.let { reminder ->
+                    AlarmHelper.scheduleReminder(context, reminder)
+                }
+            } else {
+                AlarmHelper.cancelReminder(context, id)
+            }
         }
     }
 
@@ -99,6 +114,7 @@ class ReminderViewModel(
     // 获取提醒方式的显示文本
     fun getNotifyTypeText(notifyType: ReminderNotifyType): String {
         return when (notifyType) {
+            ReminderNotifyType.NOTIFICATION -> "通知"
             ReminderNotifyType.RING -> "响铃"
             ReminderNotifyType.VIBRATE -> "振动"
             ReminderNotifyType.RING_VIBRATE -> "响铃和振动"
@@ -106,11 +122,11 @@ class ReminderViewModel(
     }
 
     // ViewModel Factory
-    class Factory(private val repository: ReminderRepository) : ViewModelProvider.Factory {
+    class Factory(private val repository: ReminderRepository, private val context: Context) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ReminderViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return ReminderViewModel(repository) as T
+                return ReminderViewModel(repository, context) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

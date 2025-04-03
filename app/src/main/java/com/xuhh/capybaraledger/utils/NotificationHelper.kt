@@ -96,6 +96,9 @@ object NotificationHelper {
 
         // 根据提醒方式设置声音和振动
         when (notifyType) {
+            ReminderNotifyType.NOTIFICATION -> {
+                // 只发送通知，不需要额外设置
+            }
             ReminderNotifyType.RING -> {
                 builder.setDefaults(NotificationCompat.DEFAULT_SOUND)
             }
