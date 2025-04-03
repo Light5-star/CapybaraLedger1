@@ -4,6 +4,7 @@ import android.app.Application
 import com.xuhh.capybaraledger.data.database.AppDatabase
 import com.xuhh.capybaraledger.data.repository.BillRepository
 import com.xuhh.capybaraledger.data.repository.LedgerRepository
+import com.xuhh.capybaraledger.data.repository.ReminderRepository
 import com.xuhh.capybaraledger.data.repository.UserRepository
 import com.xuhh.capybaraledger.viewmodel.StatisticsViewModel
 
@@ -14,5 +15,6 @@ class App : Application() {
     // 全局共享的 Repository
     val ledgerRepository by lazy { LedgerRepository(database.ledgerDao()) }
     val billRepository by lazy { BillRepository(database.billDao()) }
+    val reminderRepository by lazy { ReminderRepository(database.reminderDao()) }
 
 }
