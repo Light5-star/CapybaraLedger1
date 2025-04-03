@@ -75,15 +75,19 @@ class ReminderViewModel(
     // 更新提醒启用状态
     fun updateReminderEnabled(id: Long, isEnabled: Boolean) {
         viewModelScope.launch {
+            // 先取消现有的闹钟
+            if (!isEnabled) {
+                AlarmHelper.cancelReminder(context, id)
+            }
+            
+            // 更新数据库
             repository.updateReminderEnabled(id, isEnabled)
             
-            // 根据启用状态设置或取消提醒
+            // 如果是启用，获取完整的提醒信息后再设置闹钟
             if (isEnabled) {
                 repository.getReminder(id)?.let { reminder ->
                     AlarmHelper.scheduleReminder(context, reminder)
                 }
-            } else {
-                AlarmHelper.cancelReminder(context, id)
             }
         }
     }

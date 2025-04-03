@@ -17,6 +17,9 @@ import com.xuhh.capybaraledger.ui.base.BaseActivity
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
+import android.app.AlertDialog
+import android.widget.TextView
+import com.xuhh.capybaraledger.R
 
 class LedgerManageActivity : BaseActivity<ActivityLedgerManageBinding>() {
     private val mViewModel: BillViewModel by viewModels {
@@ -74,31 +77,24 @@ class LedgerManageActivity : BaseActivity<ActivityLedgerManageBinding>() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun showDeleteConfirmDialog(ledger: Ledger) {
-        val dialog = Dialog(this)
-        val binding = DialogDeleteConfirmBinding.inflate(layoutInflater)
-        dialog.setContentView(binding.root)
+        val dialog = AlertDialog.Builder(this).create()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_delete_confirm, null)
+        dialog.setView(dialogView)
 
-        // 设置对话框宽度为屏幕宽度的85%
-        dialog.window?.apply {
-            val params = attributes
-            params.width = (context.resources.displayMetrics.widthPixels * 0.85).toInt()
-            params.height = WindowManager.LayoutParams.WRAP_CONTENT
-            attributes = params
-            setBackgroundDrawableResource(android.R.color.transparent)
-        }
+        // 设置标题和内容
+        dialogView.findViewById<TextView>(R.id.tv_title).text = "删除账本"
+        dialogView.findViewById<TextView>(R.id.tv_content).text = "确定要删除「${ledger.name}」吗？\n删除后数据将无法恢复"
 
-        // 设置消息
-        binding.tvMessage.text = "确定要删除账本${ledger.name}吗？删除后该账本下的所有账单记录都将被删除，且无法恢复。"
-
-        // 设置按钮点击事件
-        binding.btnConfirm.setOnClickListener {
-            mViewModel.deleteLedger(ledger.id)
-            showToast("账本已删除")
+        // 取消按钮
+        dialogView.findViewById<TextView>(R.id.btn_cancel).setOnClickListener {
             dialog.dismiss()
         }
 
-        binding.btnCancel.setOnClickListener {
+        // 确认按钮
+        dialogView.findViewById<TextView>(R.id.btn_confirm).setOnClickListener {
+            mViewModel.deleteLedger(ledger.id)
             dialog.dismiss()
         }
 
