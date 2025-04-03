@@ -161,6 +161,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="center"
+                        android:visibility="invisible"
                         android:background="?attr/selectableItemBackground">
 
                         <TextView
