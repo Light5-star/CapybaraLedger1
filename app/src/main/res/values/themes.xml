@@ -6,4 +6,40 @@
     </style>
 
     <style name="Theme.Capybaraledger" parent="Base.Theme.Capybaraledger" />
+
+    <!-- 默认主题（棕色） -->
+    <style name="Theme.Capybaraledger.Default" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/default_primary</item>
+        <item name="colorPrimaryDark">@color/default_primary_dark</item>
+        <item name="colorAccent">@color/default_accent</item>
+        <item name="android:windowBackground">@color/default_background</item>
+        <item name="android:colorBackground">@color/default_background</item>
+        <item name="colorSurface">@color/default_surface</item>
+        <item name="android:textColorPrimary">@color/default_text_primary</item>
+        <item name="android:textColorSecondary">@color/default_text_secondary</item>
+    </style>
+
+    <!-- 粉色主题 -->
+    <style name="Theme.Capybaraledger.Pink" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/pink_primary</item>
+        <item name="colorPrimaryDark">@color/pink_primary_dark</item>
+        <item name="colorAccent">@color/pink_accent</item>
+        <item name="android:windowBackground">@color/pink_background</item>
+        <item name="android:colorBackground">@color/pink_background</item>
+        <item name="colorSurface">@color/pink_surface</item>
+        <item name="android:textColorPrimary">@color/pink_text_primary</item>
+        <item name="android:textColorSecondary">@color/pink_text_secondary</item>
+    </style>
+
+    <!-- 蓝色主题 -->
+    <style name="Theme.Capybaraledger.Blue" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorPrimaryDark">@color/blue_primary_dark</item>
+        <item name="colorAccent">@color/blue_accent</item>
+        <item name="android:windowBackground">@color/blue_background</item>
+        <item name="android:colorBackground">@color/blue_background</item>
+        <item name="colorSurface">@color/blue_surface</item>
+        <item name="android:textColorPrimary">@color/blue_text_primary</item>
+        <item name="android:textColorSecondary">@color/blue_text_secondary</item>
+    </style>
 </resources>

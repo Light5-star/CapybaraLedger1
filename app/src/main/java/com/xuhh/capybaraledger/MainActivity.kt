@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
+import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,8 +20,9 @@ import com.xuhh.capybaraledger.ui.base.BaseActivity
 import com.xuhh.capybaraledger.ui.view.unicode.UnicodeTextView
 import com.xuhh.capybaraledger.viewmodel.BillViewModel
 import com.xuhh.capybaraledger.viewmodel.ViewModelFactory
+import com.xuhh.capybaraledger.utils.ThemeHelper
 
-class MainActivity : BaseActivity<ActivityMainBinding>(){
+class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val billEditLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -131,4 +133,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(){
         billEditLauncher.launch(intent)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeHelper.applyTheme(this)
+        super.onCreate(savedInstanceState)
+        // ... 其他代码
+    }
 }

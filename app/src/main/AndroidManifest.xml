@@ -11,12 +11,12 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/capybara_without_background"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Capybaraledger"
+        android:theme="@style/Theme.Capybaraledger.Default"
         tools:targetApi="31">
         <activity
             android:name=".ui.activity.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.Capybaraledger">
+            android:theme="@style/Theme.Capybaraledger.Default">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

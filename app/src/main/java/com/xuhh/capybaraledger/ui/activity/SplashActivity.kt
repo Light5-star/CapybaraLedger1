@@ -14,11 +14,13 @@ import androidx.core.content.ContextCompat
 import com.xuhh.capybaraledger.MainActivity
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.databinding.ActivitySplashBinding
+import com.xuhh.capybaraledger.utils.ThemeHelper
 
 class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySplashBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeHelper.applyTheme(this)
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)

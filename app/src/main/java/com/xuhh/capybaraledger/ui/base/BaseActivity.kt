@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.xuhh.capybaraledger.R
+import com.xuhh.capybaraledger.utils.ThemeHelper
 
 /**
  * 基本的Activity
@@ -19,6 +20,7 @@ abstract class BaseActivity<T: ViewBinding>: AppCompatActivity() {
         get() = _binding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeHelper.applyTheme(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         _binding = initBinding()
