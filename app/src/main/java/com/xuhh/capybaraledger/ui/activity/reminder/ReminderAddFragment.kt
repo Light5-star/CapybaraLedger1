@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -26,6 +27,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     private var customDays: List<Int>? = null
     private var isOddWeek: Boolean = true  // 单双休时是否为单周
     private var currentNotifyType = ReminderNotifyType.RING
+    private var reminderName: String = ""
 
     override fun initBinding(): FragmentReminderAddBinding {
         return FragmentReminderAddBinding.inflate(layoutInflater)
@@ -45,6 +47,11 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         // 提醒方式点击事件
         mBinding.llNotify.root.setOnClickListener {  // 修改这里，因为是include布局
             showNotifyTypeDialog()
+        }
+
+        // 提醒名称点击事件
+        mBinding.llName.setOnClickListener {
+            showNameDialog()
         }
 
         updateNotifyTypeText()
@@ -264,9 +271,35 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         mBinding.llNotify.tvNotifyValue.text = text
     }
 
+    private fun showNameDialog() {
+        val dialog = BottomSheetDialog(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_reminder_name, null)
+        dialog.setContentView(dialogView)
+
+        val etName = dialogView.findViewById<EditText>(R.id.et_name)
+        etName.setText(reminderName)
+        etName.setSelection(reminderName.length)
+
+        dialogView.findViewById<TextView>(R.id.btn_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<TextView>(R.id.btn_confirm).setOnClickListener {
+            val name = etName.text.toString().trim()
+            if (name.isBlank()) {
+                Toast.makeText(requireContext(), "请输入提醒名称", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            reminderName = name
+            mBinding.tvNameValue.text = name
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     fun saveReminder(): Boolean {
-        val name = mBinding.etName.text.toString()
-        if (name.isBlank()) {
+        if (reminderName.isBlank()) {
             Toast.makeText(requireContext(), "请输入提醒名称", Toast.LENGTH_SHORT).show()
             return false
         }
@@ -281,7 +314,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
 
         // 保存闹钟
         viewModel.createReminder(
-            name = name,
+            name = reminderName,
             time = time,
             repeatType = currentRepeatType,
             customDays = if (currentRepeatType == ReminderRepeatType.CUSTOM) customDays else null,
