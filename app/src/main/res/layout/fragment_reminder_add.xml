@@ -20,76 +20,40 @@
         android:layout_marginTop="16dp"
         android:timePickerMode="spinner" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="重复"
-        android:textColor="@color/text_primary"
-        android:textSize="16sp" />
-
-    <RadioGroup
-        android:id="@+id/rg_repeat_type"
+    <!-- 重复选择项 -->
+    <LinearLayout
+        android:id="@+id/ll_repeat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_radio_group"
-        android:orientation="vertical"
-        android:padding="8dp">
-
-        <RadioButton
-            android:id="@+id/rb_once"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="仅一次" />
-
-        <RadioButton
-            android:id="@+id/rb_daily"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="每天" />
-
-        <RadioButton
-            android:id="@+id/rb_custom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="自定义" />
-    </RadioGroup>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="提醒方式"
-        android:textColor="@color/text_primary"
-        android:textSize="16sp" />
+        android:background="?attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-    <RadioGroup
-        android:id="@+id/rg_notify_type"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="重复"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_repeat_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="仅一次"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- 提醒方式选择项 -->
+    <include
+        android:id="@+id/ll_notify"
+        layout="@layout/view_notify_type_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_radio_group"
-        android:orientation="vertical"
-        android:padding="8dp">
-
-        <RadioButton
-            android:id="@+id/rb_ring"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="响铃" />
-
-        <RadioButton
-            android:id="@+id/rb_vibrate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="振动" />
-
-        <RadioButton
-            android:id="@+id/rb_ring_vibrate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="响铃和振动" />
-    </RadioGroup>
+        android:layout_marginTop="16dp" />
 
 </LinearLayout> 
