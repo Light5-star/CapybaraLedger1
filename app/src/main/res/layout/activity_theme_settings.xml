@@ -36,4 +36,48 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- 主题选择列表 -->
+    <RadioGroup
+        android:id="@+id/rg_themes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <RadioButton
+            android:id="@+id/rb_theme_default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="默认主题"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+        <RadioButton
+            android:id="@+id/rb_theme_dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="黑色主题"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+        <RadioButton
+            android:id="@+id/rb_theme_pink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="粉色主题"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+        <RadioButton
+            android:id="@+id/rb_theme_blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="蓝色主题"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+
+    </RadioGroup>
+
 </LinearLayout> 
