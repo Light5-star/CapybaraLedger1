@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.xuhh.capybaraledger.R
@@ -14,26 +15,28 @@ import com.xuhh.capybaraledger.utils.ThemeHelper
  * 基本的Activity
  * 完成一些绑定初始化操作，简化使用代码
  */
-abstract class BaseActivity<T: ViewBinding>: AppCompatActivity() {
-    private lateinit var _binding:T
-    val mBinding:T
-        get() = _binding
+abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
+    protected lateinit var mBinding: VB
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeHelper.applyTheme(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        _binding = initBinding()
-        setContentView(_binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        mBinding = initBinding()
+        setContentView(mBinding.root)
+        
+        // 设置 WindowInsets
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+            WindowInsetsCompat.CONSUMED
         }
+        
         initView()
     }
 
-    abstract fun initBinding(): T
+    abstract fun initBinding(): VB
     open fun initView(){}
 
     protected fun showToast(message: String) {

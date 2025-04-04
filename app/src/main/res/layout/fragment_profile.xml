@@ -61,34 +61,6 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <!-- 预算管理 -->
-                    <LinearLayout
-                        android:id="@+id/ll_budget"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:text="@string/icon_budget"
-                            android:gravity="center"
-                            android:textSize="24sp"
-                            android:textColor="@color/primary"
-                            android:fontFamily="@font/iconfont"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/tool_budget"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"/>
-                    </LinearLayout>
-
                     <!-- 提醒管理 -->
                     <LinearLayout
                         android:id="@+id/ll_reminder"
@@ -113,6 +85,34 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/tool_reminder"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+
+                    <!-- 预算管理 -->
+                    <LinearLayout
+                        android:id="@+id/ll_budget"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="?attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:text="@string/icon_budget"
+                            android:gravity="center"
+                            android:textSize="24sp"
+                            android:textColor="@color/primary"
+                            android:fontFamily="@font/iconfont"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/tool_budget"
                             android:textColor="@color/text_primary"
                             android:textSize="12sp"/>
                     </LinearLayout>

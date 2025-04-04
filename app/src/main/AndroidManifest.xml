@@ -45,6 +45,9 @@
         <activity
             android:name=".ui.activity.theme.ThemeSettingsActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.activity.budget.BudgetManagementActivity"
+            android:exported="false" />
         <receiver 
             android:name=".receiver.ReminderReceiver"
             android:enabled="true"

@@ -17,6 +17,7 @@ import com.xuhh.capybaraledger.ui.base.BaseFragment
 import com.xuhh.capybaraledger.ui.activity.ledger.LedgerManageActivity
 import com.xuhh.capybaraledger.ui.activity.reminder.ReminderManagerActivity
 import com.xuhh.capybaraledger.ui.activity.theme.ThemeSettingsActivity
+import com.xuhh.capybaraledger.ui.activity.budget.BudgetManagementActivity
 
 class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
     override fun initBinding(): FragmentProfileBinding {
@@ -50,6 +51,10 @@ class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
 
         mBinding.llDonate.setOnClickListener {
             showDonateDialog()
+        }
+
+        mBinding.llBudget.setOnClickListener {
+            startActivity(Intent(requireContext(), BudgetManagementActivity::class.java))
         }
     }
 
