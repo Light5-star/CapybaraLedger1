@@ -56,7 +56,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private class DatabaseCallback : RoomDatabase.Callback() {
+        private class DatabaseCallback : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 Log.d(TAG, "Database created, initializing data...")
@@ -64,27 +64,8 @@ abstract class AppDatabase : RoomDatabase() {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val database = INSTANCE ?: return@launch
-                        
-                        // 检查是否已存在默认账本
-                        val existingDefaultLedger = database.ledgerDao().getDefaultLedger()
-                        if (existingDefaultLedger == null) {
-                            Log.d(TAG, "Creating default ledger...")
-                            // 创建默认账本
-                            val defaultLedger = Ledger(
-                                name = "默认账本",
-                                description = "系统默认账本",
-                                icon = 0,
-                                color = 0,
-                                isDefault = true,
-                                sortOrder = 0
-                            )
-                            val ledgerId = database.ledgerDao().insert(defaultLedger)
-                            Log.d(TAG, "Default ledger created with ID: $ledgerId")
-                        } else {
-                            Log.d(TAG, "Default ledger already exists")
-                        }
 
-                        // 创建默认分类
+                        // 只创建默认分类
                         Log.d(TAG, "Creating default categories...")
                         Categories.getAllCategories().forEach { category ->
                             database.categoryDao().insert(category)
