@@ -17,6 +17,12 @@
         <item name="colorSurface">@color/default_surface</item>
         <item name="android:textColorPrimary">@color/default_text_primary</item>
         <item name="android:textColorSecondary">@color/default_text_secondary</item>
+        
+        <!-- 沉浸式状态栏设置 -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <!-- 粉色主题 -->

@@ -18,6 +18,8 @@ import com.xuhh.capybaraledger.ui.activity.ledger.LedgerManageActivity
 import com.xuhh.capybaraledger.ui.activity.reminder.ReminderManagerActivity
 import com.xuhh.capybaraledger.ui.activity.theme.ThemeSettingsActivity
 import com.xuhh.capybaraledger.ui.activity.budget.BudgetManagementActivity
+import com.xuhh.capybaraledger.util.BarUtils
+import com.xuhh.capybaraledger.util.ColorUtils
 
 class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
     override fun initBinding(): FragmentProfileBinding {
@@ -101,5 +103,14 @@ class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
         }
 
         dialog.show()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        // 设置状态栏颜色
+        BarUtils.setStatusBarColor(requireActivity(), ColorUtils.getColor(R.color.primary))
+        // 设置状态栏图标为亮色
+        BarUtils.setStatusBarLightMode(requireActivity(), false)
     }
 }

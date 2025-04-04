@@ -2,6 +2,7 @@ package com.xuhh.capybaraledger.utils
 
 import android.Manifest
 import android.app.ActivityManager
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -62,86 +63,71 @@ object NotificationHelper {
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-                description = "提醒用户记账"
-                enableVibration(true)
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT  // 降低重要性级别
+            ).apply {
+                description = "记账提醒通知"
                 enableLights(true)
+                enableVibration(true)
+                setShowBadge(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
-            
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            val notificationManager = 
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
 
-    fun showReminder(
-        context: Context,
-        title: String,
-        notifyType: ReminderNotifyType,
-        id: Int
-    ) {
-        // 检查应用是否在前台
-        val isAppForeground = isAppForeground(context)
-        
-        if (isAppForeground) {
-            // 应用在前台，显示Toast并振动一次
-            when (notifyType) {
-                ReminderNotifyType.VIBRATE, ReminderNotifyType.RING_VIBRATE -> {
-                    vibrate(context, VIBRATE_PATTERN_FOREGROUND)
-                }
-                else -> {}
-            }
-            Toast.makeText(context, title, Toast.LENGTH_LONG).show()
-        } else {
-            // 应用不在前台，显示通知
-            showNotification(context, title, notifyType, id)
-        }
-    }
-
-    private fun showNotification(
-        context: Context,
-        title: String,
-        notifyType: ReminderNotifyType,
-        id: Int
-    ) {
+    fun showReminder(context: Context, title: String, notifyType: ReminderNotifyType, id: Int) {
         createNotificationChannel(context)
 
+        // 创建普通 Intent，但不立即打开
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
+
         val pendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            id,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.capybara)
             .setContentTitle(title)
-            .setContentText("点击进入记账")
+            .setContentText("该记账啦！")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)  // 改为提醒类别
+            .setAutoCancel(true)  // 点击后自动消失
             .setContentIntent(pendingIntent)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(false)  // 改为非持续通知
+            .setDefaults(getNotificationDefaults(notifyType))
+            // 添加声音和振动
+            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))  // 使用通知音而不是闹钟音
+            .setVibrate(longArrayOf(0, 500, 200, 500))  // 减少振动强度
+            .build()
 
-        // 根据提醒方式设置振动
-        when (notifyType) {
-            ReminderNotifyType.VIBRATE, ReminderNotifyType.RING_VIBRATE -> {
-                builder.setVibrate(VIBRATE_PATTERN_BACKGROUND)
-            }
-            else -> {}
+        // 移除强制性标志
+        notification.flags = notification.flags or 
+            Notification.FLAG_AUTO_CANCEL  // 点击后自动消失
+
+        val notificationManager = 
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(id, notification)
+    }
+
+    private fun getNotificationDefaults(notifyType: ReminderNotifyType): Int {
+        return when (notifyType) {
+            ReminderNotifyType.NOTIFICATION -> NotificationCompat.DEFAULT_ALL
+            ReminderNotifyType.RING -> NotificationCompat.DEFAULT_SOUND
+            ReminderNotifyType.VIBRATE -> NotificationCompat.DEFAULT_VIBRATE
+            ReminderNotifyType.RING_VIBRATE -> NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_VIBRATE
         }
-
-        // 根据提醒方式设置声音
-        when (notifyType) {
-            ReminderNotifyType.RING, ReminderNotifyType.RING_VIBRATE -> {
-                builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-            }
-            else -> {}
-        }
-
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(id, builder.build())
     }
 
     private fun vibrate(context: Context, pattern: LongArray) {

@@ -1,6 +1,7 @@
 package com.xuhh.capybaraledger.application
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
@@ -17,6 +18,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class App : Application() {
+    companion object {
+        lateinit var context: Context
+            private set
+    }
+
     // 数据库实例（单例）
     val database by lazy { AppDatabase.getInstance(this) }
 
@@ -27,6 +33,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        context = applicationContext
         applyTheme()
         checkDefaultLedger()
     }
