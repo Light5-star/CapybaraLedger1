@@ -14,6 +14,7 @@
 
 <!--    账本文本-->
     <string name="select_ledger">账本选择</string>
+    <string name="select_bill_type">类型选择</string>
     <string name="home_select_ledger">选择账本</string>
     <string name="ledger_default">默认账本</string>
     <string name="category_icon_desc">分类图标</string>
@@ -42,12 +43,30 @@
     <!--    主页界面文本-->
     <string name="home_today">今天</string>
     <string name="home_no_bills">今天还没有记账哦~</string>
-    <string name="details_list_mode">流水模式</string>
-    <string name="details_calendar_mode">日历模式</string>
 
 <!--    明细界面文本-->
-
+    <string name="details_list_mode">流水模式</string>
+    <string name="details_calendar_mode">日历模式</string>
+    <string name="details_total_expense">支出：¥%1$.2f</string>
+    <string name="details_total_income">收入：¥%1$.2f</string>
+    <!-- 日历相关 -->
+    <string name="prev_month">上个月</string>
+    <string name="next_month">下个月</string>
+    <string name="sunday">日</string>
+    <string name="monday">一</string>
+    <string name="tuesday">二</string>
+    <string name="wednesday">三</string>
+    <string name="thursday">四</string>
+    <string name="friday">五</string>
+    <string name="saturday">六</string>
 <!--    统计界面文本-->
+    <string name="ledger_select_desc">选择账本</string>
+    <string name="prev_month_desc">上个月</string>
+    <string name="next_month_desc">下个月</string>
+    <string name="statistics_expense">支出</string>
+    <string name="statistics_income">收入</string>
+    <string name="statistics_balance">结余</string>
+    <string name="statistics_month_summary">本月统计</string>
 
 <!--    我的界面文本-->
     <string name="other_settings">设置</string>
@@ -142,9 +161,9 @@
     <string name="social">&#xe615;</string>
     <string name="icon_weixin">&#xe602;</string>
     <string name="icon_qq">&#xe883;</string>
-    <string name="icon_yinpin">&#xe659;</string>
+    <string name="icon_drink">&#xe659;</string>
     <string name="icon_bangong">&#xe654;</string>
-    <string name="icon_drink">&#xe656;</string>
+    <string name="icon_yiliao">&#xe656;</string>
     <string name="icon_jiaoyu">&#xe661;</string>
     <string name="icon_category">&#xe692;</string>
     <string name="icon_gudong_fenhong">&#xe687;</string>

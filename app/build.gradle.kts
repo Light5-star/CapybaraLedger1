@@ -22,9 +22,14 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Room schema export directory
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
@@ -43,6 +48,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    
 }
 
 dependencies {
@@ -52,6 +58,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.preference.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,6 +74,7 @@ dependencies {
     //viewModelScope lifecycleScope
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    ksp(libs.androidx.room.compiler)
 
     //room
     implementation(libs.androidx.room.runtime)
@@ -78,5 +87,10 @@ dependencies {
 
     //dataBinding
     implementation(libs.lifecycle.compiler)
+    //core-splashscreen
+    implementation(libs.androidx.core.splashscreen)
+
+    implementation(libs.glide)
+    implementation(libs.philJay)
 
 }

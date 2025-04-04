@@ -1,6 +1,5 @@
 package com.xuhh.capybaraledger.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +8,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.xuhh.capybaraledger.R
-import com.xuhh.capybaraledger.data.model.Bill
-import com.xuhh.capybaraledger.data.model.Categories
+import com.xuhh.capybaraledger.data.dao.BillWithCategory
 import com.xuhh.capybaraledger.ui.view.unicode.UnicodeTextView
+import java.util.Date
+import java.util.Locale
 
 class BillAdapter(
-    private val onBillClick: (Bill) -> Unit
-) : ListAdapter<Bill, BillAdapter.ViewHolder>(BillDiffCallback) {
+    private val onBillClick: (BillWithCategory) -> Unit
+) : ListAdapter<BillWithCategory, BillAdapter.ViewHolder>(BillDiffCallback) {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvIcon: UnicodeTextView = view.findViewById(R.id.tv_icon)
@@ -31,45 +31,64 @@ class BillAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val bill = getItem(position)
+        val billWithCategory = getItem(position)
 
         // 设置分类图标
-        val category = Categories.getAllCategories().find { it.name == bill.category }
-        holder.tvIcon.text = (category?.icon ?: "\ue692").toString()
+        holder.tvIcon.setText(billWithCategory.category.iconResId)
+        holder.tvCategory.text = billWithCategory.category.name
 
         // 设置分类名称和备注
-        holder.tvCategory.text = bill.category
-        if (bill.note.isNullOrEmpty()) {
+        if (billWithCategory.bill.note.isNullOrEmpty()) {
             holder.tvNote.visibility = View.GONE
         } else {
             holder.tvNote.apply {
                 visibility = View.VISIBLE
-                text = bill.note
+                text = billWithCategory.bill.note
             }
         }
 
         // 设置金额
         holder.tvAmount.text = String.format(
-            if (bill.type == 0) "-%.2f" else "+%.2f",
-            bill.amount
+            if (billWithCategory.bill.type == 0) "-%.2f" else "+%.2f",
+            billWithCategory.bill.amount
         )
 
         // 设置点击事件
-        holder.itemView.setOnClickListener { onBillClick(bill) }
+        holder.itemView.setOnClickListener { onBillClick(billWithCategory) }
+
+        // 根据收支类型设置不同颜色
+        holder.tvAmount.setTextColor(
+            if (billWithCategory.bill.type == 0) {
+                holder.itemView.context.getColor(android.R.color.holo_red_dark)
+            } else {
+                holder.itemView.context.getColor(android.R.color.holo_green_dark)
+            }
+        )
     }
 
-    object BillDiffCallback : DiffUtil.ItemCallback<Bill>() {
-        override fun areItemsTheSame(oldItem: Bill, newItem: Bill): Boolean {
-            return oldItem.id == newItem.id
+    object BillDiffCallback : DiffUtil.ItemCallback<BillWithCategory>() {
+        override fun areItemsTheSame(
+            oldItem: BillWithCategory,
+            newItem: BillWithCategory
+        ): Boolean {
+            return oldItem.bill.id == newItem.bill.id
         }
 
-        override fun areContentsTheSame(oldItem: Bill, newItem: Bill): Boolean {
+        override fun areContentsTheSame(
+            oldItem: BillWithCategory,
+            newItem: BillWithCategory
+        ): Boolean {
             return oldItem == newItem
         }
+
     }
 
-    fun submitSortedList(newBills: List<Bill>) {
-        Log.d("HomeBillListAdapter", "Submitting new list with ${newBills.size} bills")
-        submitList(newBills.sortedByDescending { it.date })
+    fun submitSortedList(list: List<BillWithCategory>) {
+        // 按时间倒序排序，优先按日期排序，日期相同则按具体时间排序
+        val sortedList = list.sortedWith(
+            compareByDescending<BillWithCategory> { it.bill.date }
+            .thenByDescending { it.bill.time }
+        )
+        super.submitList(sortedList)
     }
 }

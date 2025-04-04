@@ -68,4 +68,44 @@
     <color name="pie_color_6">#9370DB</color>  <!-- Medium Purple -->
     <color name="pie_color_7">#A9A9A9</color>  <!-- Dark Gray -->
 
+    <!-- 日历模式颜色 -->
+    <color name="colorExpense">#F44336</color>
+    <color name="colorIncome">#4CAF50</color>
+
+    <!-- 默认主题颜色（棕色系） -->
+    <color name="default_primary">#795548</color>
+    <color name="default_primary_dark">#5D4037</color>
+    <color name="default_accent">#8D6E63</color>
+    <color name="default_background">#FAFAFA</color>
+    <color name="default_surface">#FFFFFF</color>
+    <color name="default_text_primary">#212121</color>
+    <color name="default_text_secondary">#757575</color>
+
+    <!-- 粉色主题颜色 -->
+    <color name="pink_primary">#EC407A</color>
+    <color name="pink_primary_dark">#D81B60</color>
+    <color name="pink_accent">#FF80AB</color>
+    <color name="pink_background">#FFF5F7</color>
+    <color name="pink_surface">#FFFFFF</color>
+    <color name="pink_text_primary">#212121</color>
+    <color name="pink_text_secondary">#757575</color>
+
+    <!-- 蓝色主题颜色 -->
+    <color name="blue_primary">#2196F3</color>
+    <color name="blue_primary_dark">#1976D2</color>
+    <color name="blue_accent">#64B5F6</color>
+    <color name="blue_background">#F5F9FF</color>
+    <color name="blue_surface">#FFFFFF</color>
+    <color name="blue_text_primary">#212121</color>
+    <color name="blue_text_secondary">#757575</color>
+
+    <!-- 深色主题颜色 -->
+    <color name="dark_primary">#121212</color>
+    <color name="dark_primary_dark">#000000</color>
+    <color name="dark_accent">#BB86FC</color>
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_secondary">#B3FFFFFF</color>
+
 </resources>

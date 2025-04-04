@@ -1,22 +1,45 @@
 package com.xuhh.capybaraledger.data.dao
 
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Relation
+import androidx.room.Transaction
 import androidx.room.Update
 import com.xuhh.capybaraledger.data.model.Bill
-import kotlinx.coroutines.flow.Flow
+import com.xuhh.capybaraledger.data.model.Category
+
+data class BillWithCategory(
+    @Embedded val bill: Bill,
+    @Relation(
+        parentColumn = "category_id",
+        entityColumn = "id"
+    )
+    val category: Category
+)
 
 @Dao
 interface BillDao {
     @Insert
-    suspend fun insert(bill: Bill)
+    suspend fun insert(bill: Bill): Long
 
-    @Query("SELECT * FROM bills WHERE date = :date AND ledger_id = :ledgerId")
-    suspend fun getBillsByDate(date: String, ledgerId: Long?): List<Bill>
+    @Query("SELECT * FROM bills WHERE id = :id")
+    suspend fun getBillById(id: Long): Bill?
 
-    @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId AND date BETWEEN :startDate AND :endDate")
-    suspend fun getBillsByLedgerAndMonth(ledgerId: Long, startDate: String, endDate: String): List<Bill>
+    @Transaction
+    @Query("""
+        SELECT * FROM bills 
+        WHERE date = :date AND ledger_id = :ledgerId
+    """)
+    suspend fun getBillsByDate(date: Long, ledgerId: Long?): List<BillWithCategory>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM bills 
+        WHERE ledger_id = :ledgerId AND date BETWEEN :startDate AND :endDate
+    """)
+    suspend fun getBillsByLedgerAndMonth(ledgerId: Long, startDate: Long, endDate: Long): List<BillWithCategory>
 
     @Query("DELETE FROM bills WHERE id = :id")
     suspend fun deleteBill(id: Long)
@@ -25,8 +48,64 @@ interface BillDao {
     suspend fun updateBill(bill: Bill)
 
     @Query("SELECT SUM(amount) FROM bills WHERE type = :type AND date BETWEEN :startDate AND :endDate")
-    suspend fun getExpenseAmount(type: Int, startDate: String, endDate: String): Double
+    suspend fun getExpenseAmount(type: Int, startDate: Long, endDate: Long): Double
 
-    @Query("SELECT * FROM bills")
-    fun getAllBillsFlow(): Flow<List<Bill>>
+    @Transaction
+    @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId")
+    suspend fun getBillsByLedger(ledgerId: Long): List<BillWithCategory>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM bills 
+        WHERE date BETWEEN :startDate AND :endDate 
+        AND ledger_id = :ledgerId
+        ORDER BY date DESC
+    """)
+    suspend fun getDailyBills(
+        startDate: Long,
+        endDate: Long,
+        ledgerId: Long
+    ): List<BillWithCategory>
+
+    @Query("SELECT * FROM bills WHERE ledger_id = :ledgerId AND date >= :startTime AND date <= :endTime ORDER BY date DESC")
+    suspend fun getBillsByLedgerIdAndTimeRange(ledgerId: Long, startTime: Long, endTime: Long): List<Bill>
+
+    @Query("SELECT * FROM bills WHERE time >= :startTime AND time < :endTime")
+    suspend fun getBillsByTimeRange(startTime: Long, endTime: Long): List<BillWithCategory>
+
+    @Query("""
+        SELECT b.*, c.* FROM bills b 
+        INNER JOIN categories c ON b.category_id = c.id 
+        WHERE b.ledger_id = :ledgerId AND b.date BETWEEN :startTime AND :endTime
+    """)
+    suspend fun getBillsWithCategoryByTimeRange(ledgerId: Long, startTime: Long, endTime: Long): List<BillWithCategory>
+
+    @Transaction
+    @Query("""
+        SELECT b.*, c.* FROM bills b 
+        LEFT JOIN categories c ON b.category_id = c.id 
+        WHERE b.ledger_id = :ledgerId 
+        AND b.date >= :startDate 
+        AND b.date < :endDate 
+        ORDER BY b.date DESC, b.time DESC
+    """)
+    suspend fun getBillsByDateRange(
+        ledgerId: Long,
+        startDate: Long,
+        endDate: Long
+    ): List<BillWithCategory>
+
+    @Query("""
+        SELECT COALESCE(SUM(amount), 0.0) FROM bills 
+        WHERE type = :type 
+        AND ledger_id = :ledgerId
+        AND date >= :startDate 
+        AND date < :endDate
+    """)
+    suspend fun getExpenseAmount(
+        type: Int,
+        ledgerId: Long,
+        startDate: Long,
+        endDate: Long
+    ): Double
 }

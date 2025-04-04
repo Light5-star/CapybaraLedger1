@@ -60,16 +60,17 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 账单列表 -->
+    <!-- 修改账单列表区域为 FrameLayout -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/accent">
 
         <!-- 账单内容 -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="8dp"
             android:layout_marginHorizontal="16dp"
             android:orientation="vertical">
@@ -77,8 +78,8 @@
             <!-- 主要内容区域 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/background_light"
+                android:layout_height="match_parent"
+                android:background="@color/accent"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -86,7 +87,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_bills"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"/>
 
                 <!-- 今日结余 -->
                 <TextView
@@ -95,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:gravity="end"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -109,7 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/home_no_bills"
+            android:text="今日还没有记账哦~"
             android:textColor="@color/text_secondary"
             android:textSize="16sp"
             android:visibility="gone" />
