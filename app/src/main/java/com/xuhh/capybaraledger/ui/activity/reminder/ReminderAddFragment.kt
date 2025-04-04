@@ -28,25 +28,24 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         )
     }
     
-    private var currentRepeatType = ReminderRepeatType.ONCE
-    private var customDays: List<Int>? = null
-    private var isOddWeek: Boolean = true  // 单双休时是否为单周
-    private var currentNotifyType = ReminderNotifyType.NOTIFICATION
     private var reminderName: String = ""
-    private var editingReminder: Reminder? = null  // 当前正在编辑的提醒
+    private var currentRepeatType = ReminderRepeatType.ONCE
+    private var currentNotifyType = ReminderNotifyType.NOTIFICATION
+    private var customDays: List<Int>? = null
+    private var isOddWeek: Boolean = true
+    private var editingReminder: Reminder? = null
 
     override fun initBinding(): FragmentReminderAddBinding {
         return FragmentReminderAddBinding.inflate(layoutInflater)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun initView() {
         setupViews()
         
-        // 获取要编辑的提醒
-        arguments?.getLong("reminder_id", -1)?.let { id ->
-            if (id != -1L) {
-                loadReminder(id)
+        // 从参数中获取 reminderId 并加载数据
+        arguments?.getLong("reminder_id", -1L)?.let { reminderId ->
+            if (reminderId != -1L) {
+                loadReminder(reminderId)
             }
         }
     }
@@ -58,7 +57,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         }
 
         // 提醒方式点击事件
-        mBinding.llNotify.root.setOnClickListener {  // 修改这里，因为是include布局
+        mBinding.llNotify.root.setOnClickListener {
             showNotifyTypeDialog()
         }
 
@@ -67,6 +66,9 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
             showNameDialog()
         }
 
+        // 初始化默认显示
+        mBinding.tvNameValue.text = reminderName.ifEmpty { "请输入提醒名称" }
+        updateRepeatTypeText()
         updateNotifyTypeText()
     }
 
@@ -240,25 +242,33 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
         dialog.setContentView(dialogView)
 
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_notify_type)
-        var tempNotifyType = currentNotifyType
-
+        
         // 设置当前选中状态
-        radioGroup.check(R.id.rb_notification)  // 默认选中通知
+        when (currentNotifyType) {
+            ReminderNotifyType.NOTIFICATION -> radioGroup.check(R.id.rb_notification)
+            ReminderNotifyType.RING -> radioGroup.check(R.id.rb_ring)
+            ReminderNotifyType.VIBRATE -> radioGroup.check(R.id.rb_vibrate)
+            ReminderNotifyType.RING_VIBRATE -> radioGroup.check(R.id.rb_ring_vibrate)
+        }
 
         // 选择监听
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            tempNotifyType = ReminderNotifyType.NOTIFICATION  // 始终使用通知
-        }
-
-        // 取消按钮
-        dialogView.findViewById<TextView>(R.id.btn_cancel).setOnClickListener {
-            dialog.dismiss()
+            currentNotifyType = when (checkedId) {
+                R.id.rb_notification -> ReminderNotifyType.NOTIFICATION
+                R.id.rb_ring -> ReminderNotifyType.RING
+                R.id.rb_vibrate -> ReminderNotifyType.VIBRATE
+                R.id.rb_ring_vibrate -> ReminderNotifyType.RING_VIBRATE
+                else -> ReminderNotifyType.NOTIFICATION
+            }
+            updateNotifyTypeText()  // 立即更新显示
         }
 
         // 确认按钮
         dialogView.findViewById<TextView>(R.id.btn_confirm).setOnClickListener {
-            currentNotifyType = tempNotifyType
-            updateNotifyTypeText()
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<TextView>(R.id.btn_cancel).setOnClickListener {
             dialog.dismiss()
         }
 
@@ -266,7 +276,13 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     }
 
     private fun updateNotifyTypeText() {
-        mBinding.llNotify.tvNotifyValue.text = "通知"  // 始终显示通知
+        val text = when (currentNotifyType) {
+            ReminderNotifyType.NOTIFICATION -> "通知"
+            ReminderNotifyType.RING -> "响铃"
+            ReminderNotifyType.VIBRATE -> "振动"
+            ReminderNotifyType.RING_VIBRATE -> "响铃和振动"
+        }
+        mBinding.llNotify.tvNotifyValue.text = text
     }
 
     private fun showNameDialog() {
@@ -299,22 +315,24 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
     private fun loadReminderData(reminder: Reminder) {
         // 加载提醒数据到界面
         reminderName = reminder.name
-        mBinding.tvNameValue.text = reminderName
-
-        // 设置时间
-        val (hours, minutes) = reminder.time.split(":").map { it.toInt() }
-        mBinding.timePicker.hour = hours
-        mBinding.timePicker.minute = minutes
-
-        // 设置重复类型
         currentRepeatType = reminder.repeatType
+        currentNotifyType = reminder.notifyType
         customDays = reminder.customDays
         isOddWeek = reminder.isOddWeek ?: true
-        updateRepeatTypeText()
 
-        // 设置提醒方式
-        currentNotifyType = reminder.notifyType
-        updateNotifyTypeText()
+        // 更新UI
+        mBinding.apply {
+            tvNameValue.text = reminderName
+            
+            // 设置时间
+            val (hours, minutes) = reminder.time.split(":").map { it.toInt() }
+            timePicker.hour = hours
+            timePicker.minute = minutes
+            
+            // 更新其他显示
+            updateRepeatTypeText()
+            updateNotifyTypeText()
+        }
     }
 
     fun saveReminder(): Boolean {
@@ -323,13 +341,12 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
             return false
         }
 
-        // 获取时间
         val hour = mBinding.timePicker.hour
         val minute = mBinding.timePicker.minute
         val time = String.format("%02d:%02d", hour, minute)
 
         if (editingReminder != null) {
-            // 更新提醒
+            // 编辑模式：使用现有的 ID 更新提醒
             viewModel.updateReminder(
                 editingReminder!!.copy(
                     name = reminderName,
@@ -341,7 +358,7 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
                 )
             )
         } else {
-            // 创建新提醒
+            // 添加模式：创建新提醒
             viewModel.createReminder(
                 name = reminderName,
                 time = time,
@@ -359,9 +376,18 @@ class ReminderAddFragment : BaseFragment<FragmentReminderAddBinding>() {
 
     fun loadReminder(reminderId: Long) {
         viewLifecycleOwner.lifecycleScope.launch {
-            editingReminder = viewModel.getReminder(reminderId)
-            editingReminder?.let { reminder ->
-                loadReminderData(reminder)
+            try {
+                val reminder = viewModel.getReminder(reminderId)
+                if (reminder != null) {
+                    editingReminder = reminder
+                    loadReminderData(reminder)
+                } else {
+                    Toast.makeText(requireContext(), "找不到该提醒", Toast.LENGTH_SHORT).show()
+                    (activity as? ReminderManagerActivity)?.navigateToList()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "加载提醒失败", Toast.LENGTH_SHORT).show()
+                (activity as? ReminderManagerActivity)?.navigateToList()
             }
         }
     }

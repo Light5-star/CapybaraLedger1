@@ -36,19 +36,20 @@ class ReminderViewModel(
         isOddWeek: Boolean? = null,
         notifyType: ReminderNotifyType
     ) {
-        val reminder = Reminder(
-            name = name,
-            time = time,
-            repeatType = repeatType,
-            customDays = customDays,
-            isOddWeek = isOddWeek,
-            notifyType = notifyType
-        )
         viewModelScope.launch {
-            val id = repository.insertReminder(reminder)
-            if (reminder.isEnabled) {
-                AlarmHelper.scheduleReminder(context, reminder.copy(id = id))
-            }
+            val reminder = Reminder(
+                id = 0,  // 让数据库自动生成ID
+                name = name,
+                time = time,
+                repeatType = repeatType,
+                customDays = customDays,
+                isOddWeek = isOddWeek,
+                notifyType = notifyType,
+                isEnabled = true
+            )
+            val newId = repository.insertReminder(reminder)
+            // 设置闹钟
+            AlarmHelper.scheduleReminder(context, reminder.copy(id = newId))
         }
     }
 
@@ -57,11 +58,7 @@ class ReminderViewModel(
         viewModelScope.launch {
             repository.updateReminder(reminder)
             // 更新闹钟
-            if (reminder.isEnabled) {
-                AlarmHelper.scheduleReminder(context, reminder)
-            } else {
-                AlarmHelper.cancelReminder(context, reminder.id)
-            }
+            AlarmHelper.scheduleReminder(context, reminder)
         }
     }
 
@@ -69,6 +66,8 @@ class ReminderViewModel(
     fun deleteReminder(reminder: Reminder) {
         viewModelScope.launch {
             repository.deleteReminder(reminder)
+            // 取消闹钟
+            AlarmHelper.cancelReminder(context, reminder.id)
         }
     }
 
