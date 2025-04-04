@@ -1,7 +1,6 @@
 package com.xuhh.capybaraledger.ui.activity.reminder
 
 import android.os.Bundle
-import android.view.View
 import androidx.activity.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.xuhh.capybaraledger.application.App
@@ -13,7 +12,7 @@ class ReminderManagerActivity : BaseActivity<ActivityReminderManageBinding>() {
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: ReminderPagerAdapter
 
-    private val viewModel: ReminderViewModel by viewModels { 
+    private val viewModel: ReminderViewModel by viewModels {
         ReminderViewModel.Factory(
             (application as App).reminderRepository,
             this
@@ -22,6 +21,10 @@ class ReminderManagerActivity : BaseActivity<ActivityReminderManageBinding>() {
 
     override fun initBinding(): ActivityReminderManageBinding {
         return ActivityReminderManageBinding.inflate(layoutInflater)
+    }
+
+    override fun initView() {
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

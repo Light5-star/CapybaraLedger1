@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat
 import com.xuhh.capybaraledger.MainActivity
 import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.databinding.ActivitySplashBinding
+import com.xuhh.capybaraledger.dialog.AgreementDialog
+import com.xuhh.capybaraledger.utils.PrefsHelper
 import com.xuhh.capybaraledger.utils.ThemeHelper
 
 class SplashActivity : AppCompatActivity() {
@@ -29,6 +31,27 @@ class SplashActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = ContextCompat.getColor(this, R.color.splash_background)
 
+        if (!PrefsHelper.isAgreementAccepted(this)) {
+            showAgreementDialog()
+        } else {
+            startAnimation()
+        }
+    }
+
+    private fun showAgreementDialog() {
+        AgreementDialog(
+            this,
+            onAgree = {
+                PrefsHelper.setAgreementAccepted(this)
+                startAnimation()
+            },
+            onDisagree = {
+                finish()
+            }
+        ).show()
+    }
+
+    private fun startAnimation() {
         // 设置初始状态
         binding.ivLogo.alpha = 0f
         binding.tvAppName.alpha = 0f

@@ -1,7 +1,9 @@
 package com.xuhh.capybaraledger.ui.fragment.home
 
+import android.os.Build
 import android.view.View
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +33,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         return FragmentHomeBinding.inflate(layoutInflater)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun initView() {
         super.initView()
         setupViews()
@@ -38,6 +41,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         isViewCreated = true
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         if (isViewCreated) {
@@ -52,6 +56,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>() {
         setupRecyclerView()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             // 观察当前账本

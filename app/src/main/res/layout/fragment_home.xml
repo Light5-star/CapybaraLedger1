@@ -60,13 +60,12 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 账单列表 -->
-    <LinearLayout
+    <!-- 修改账单列表区域为 FrameLayout -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/accent"
-        android:orientation="horizontal">
+        android:background="@color/accent">
 
         <!-- 账单内容 -->
         <LinearLayout
@@ -113,11 +112,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/home_no_bills"
+            android:text="今日还没有记账哦~"
             android:textColor="@color/text_secondary"
             android:textSize="16sp"
             android:visibility="gone" />
 
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout> 

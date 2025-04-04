@@ -1,6 +1,7 @@
 package com.xuhh.capybaraledger.data.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -42,13 +43,14 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                Log.d(TAG, "Creating new database instance")
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "BillDatabase.db"
                 )
                     .addCallback(DatabaseCallback())
-                    .fallbackToDestructiveMigration() // 如果数据库版本不匹配，重建数据库
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }
@@ -57,34 +59,46 @@ abstract class AppDatabase : RoomDatabase() {
         private class DatabaseCallback : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                // 在数据库创建时初始化默认数据
+                Log.d(TAG, "Database created, initializing data...")
+                
                 CoroutineScope(Dispatchers.IO).launch {
-                    val database = INSTANCE ?: return@launch
-                    
-                    // 创建默认用户
-                    val defaultUser = User(
-                        userId = "defaultUser",
-                        nickname = "未登录用户",
-                        gender = User.GENDER_UNKNOWN
-                    )
-                    database.userDao().insert(defaultUser)
+                    try {
+                        val database = INSTANCE ?: return@launch
+                        
+                        // 检查是否已存在默认账本
+                        val existingDefaultLedger = database.ledgerDao().getDefaultLedger()
+                        if (existingDefaultLedger == null) {
+                            Log.d(TAG, "Creating default ledger...")
+                            // 创建默认账本
+                            val defaultLedger = Ledger(
+                                name = "默认账本",
+                                description = "系统默认账本",
+                                icon = 0,
+                                color = 0,
+                                isDefault = true,
+                                sortOrder = 0
+                            )
+                            val ledgerId = database.ledgerDao().insert(defaultLedger)
+                            Log.d(TAG, "Default ledger created with ID: $ledgerId")
+                        } else {
+                            Log.d(TAG, "Default ledger already exists")
+                        }
 
-                    // 创建默认账本
-                    val defaultLedger = Ledger(
-                        name = "默认账本",
-                        description = "系统默认账本",
-                        icon = 0,
-                        color = 0,
-                        isDefault = true,
-                        sortOrder = 0
-                    )
-                    database.ledgerDao().insert(defaultLedger)
-
-                    Categories.getAllCategories().forEach { category ->
-                        database.categoryDao().insert(category)
+                        // 创建默认分类
+                        Log.d(TAG, "Creating default categories...")
+                        Categories.getAllCategories().forEach { category ->
+                            database.categoryDao().insert(category)
+                        }
+                        Log.d(TAG, "Database initialization completed")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error initializing database", e)
                     }
-
                 }
+            }
+
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                Log.d(TAG, "Database opened")
             }
         }
     }

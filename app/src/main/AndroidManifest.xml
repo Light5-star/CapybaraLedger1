@@ -40,9 +40,6 @@
             android:name=".ui.activity.ledger.LedgerManageActivity"
             android:exported="false"/>
         <activity
-            android:name=".ui.activity.reminder.ReminderManageActivity"
-            android:exported="false"/>
-        <activity
             android:name=".ui.activity.reminder.ReminderManagerActivity"
             android:exported="false" />
         <activity
