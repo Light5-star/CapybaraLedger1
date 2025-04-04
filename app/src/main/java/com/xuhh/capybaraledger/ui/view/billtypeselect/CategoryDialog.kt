@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.GridLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -97,7 +98,7 @@ class CategoryDialog(
     }
     //关闭按钮
     private fun setupCloseButton() {
-        findViewById<TextView>(R.id.btn_close)?.setOnClickListener {
+        findViewById<ImageView>(R.id.btn_close)?.setOnClickListener {
             dismiss()
         }
     }

@@ -65,6 +65,9 @@ class BillEditActivity : BaseActivity<ActivityBillEditBinding>() {
         mBinding.btnBack.setOnClickListener {
             finish()
         }
+
+        // 在初始化时调用一次 setupCategorySpinner 来设置默认分类
+        setupCategorySpinner()
     }
 
     private fun setUpCategorySelector() {

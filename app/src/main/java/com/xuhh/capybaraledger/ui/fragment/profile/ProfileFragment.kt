@@ -1,6 +1,15 @@
 package com.xuhh.capybaraledger.ui.fragment.profile
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.os.Bundle
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.databinding.FragmentProfileBinding
 import com.xuhh.capybaraledger.dialog.AboutDialog
 import com.xuhh.capybaraledger.dialog.FeedbackDialog
@@ -38,5 +47,54 @@ class ProfileFragment: BaseFragment<FragmentProfileBinding>() {
         mBinding.llTheme.setOnClickListener {
             startActivity(Intent(requireContext(), ThemeSettingsActivity::class.java))
         }
+
+        mBinding.llDonate.setOnClickListener {
+            showDonateDialog()
+        }
+    }
+
+    private fun showDonateDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_donate)
+        
+        // 设置窗口背景为透明
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        
+        // 设置宽度为屏幕的85%
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.85).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        // 设置支付宝点击事件
+        dialog.findViewById<View>(R.id.ll_alipay).setOnClickListener {
+            try {
+                // 使用您的收款码
+                val qrCode = "https://qr.alipay.com/fkx13741qojunpob0eyr283"
+                val encodedQrCode = java.net.URLEncoder.encode(qrCode, "utf-8")
+                // 构建支付宝 App 的 URL Schema
+                val alipayUrl = "alipayqr://platformapi/startapp?saId=10000007&qrcode=$encodedQrCode"
+                
+                // 尝试打开支付宝 App
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(alipayUrl)))
+            } catch (e: Exception) {
+                // 如果失败，使用浏览器打开
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://qr.alipay.com/fkx13741qojunpob0eyr283")))
+            }
+            dialog.dismiss()
+        }
+
+        // 设置微信点击事件
+        dialog.findViewById<View>(R.id.ll_wechat).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // 设置关闭按钮
+        dialog.findViewById<View>(R.id.btn_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }
