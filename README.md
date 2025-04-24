@@ -1,5 +1,10 @@
 # 卡皮本地记账软件
 
+[![Kotlin Version](https://img.shields.io/badge/Kotlin-1.9.23-purple?logo=kotlin)](https://kotlinlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Min SDK](https://img.shields.io/badge/Min%20SDK-23-orange)](https://developer.android.com/about/versions/marshmallow)
+[![Telegram Group](https://img.shields.io/badge/QQ群-962285162-blue?logo=tencent-qq)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=K0gSvdTlO47PADHVtNb359_k4-8cQWdJ)
+
 ## 项目简介
 
 CapybaraLedger 是一款基于 Android 平台的现代化记账应用，旨在帮助用户轻松管理个人财务。应用采用直观的界面设计和强大的功能，让记账变得简单高效。
@@ -33,12 +38,10 @@ CapybaraLedger 是一款基于 Android 平台的现代化记账应用，旨在�
 - Android 6.0 (API 23) 或更高版本
 - 至少 50MB 可用存储空间
 
-### 安装步骤
+### 🚀快速下载
 
-1. 从 [卡皮本地记账软件分发](https://www.pgyer.com/cpledger) 下载最新版本的 APK 文件
-2. 在 Android 设备上启用「未知来源应用安装」
-3. 点击下载的 APK 文件进行安装
-4. 启动应用，开始使用
+1. [卡皮本地记账软件分发](https://www.pgyer.com/cpledger)
+2. 腾讯应用宝搜索“卡皮本地记账软件”
 
 ### 开发环境配置
 
@@ -151,8 +154,7 @@ CapybaraLedger 是一款基于 Android 平台的现代化记账应用，旨在�
 - body: 详细描述
 
 ## 许可证
-
-本项目采用 [MIT 许可证](LICENSE) 进行开源。
+本项目采用 [MIT 许可证](LICENSE)  许可证，部分图标资源来自阿里巴巴矢量图标库，使用时请遵守相关授权协议。
 
 ## 维护者
 
