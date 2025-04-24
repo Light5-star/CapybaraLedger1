@@ -51,6 +51,11 @@
     <color name="chart_expense">#D32F2F</color>     <!-- 支出红色 -->
     <color name="chart_income">#388E3C</color>      <!-- 收入绿色 -->
     <color name="chart_balance">#A78B77</color>     <!-- 主色调 -->
+    
+    <!-- 预测图表颜色 -->
+    <color name="chart_prediction">#5D4037</color>  <!-- 深棕色 -->
+    <color name="chart_prediction_fill">#805D4037</color> <!-- 深棕色带透明度 -->
+    <color name="chart_history">#8D6E63</color>     <!-- 中棕色 -->
 
     <!-- 涟漪效果颜色 -->
     <color name="ripple">#33000000</color>

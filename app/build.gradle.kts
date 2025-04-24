@@ -93,4 +93,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.philJay)
 
+    // MPAndroidChart 图表库
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 }

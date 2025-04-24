@@ -66,16 +66,16 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
 
     private fun setupViewPager() {
         mBinding.viewPager.apply {
-            isUserInputEnabled = false // 禁用滑动切换
+            isUserInputEnabled = false
             adapter = StatisticsPagerAdapter(childFragmentManager, lifecycle)
         }
 
-        // 添加 ViewPager 切换监听
         mBinding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 currentMode = when (position) {
                     0 -> Mode.TREND
                     1 -> Mode.RANK
+                    2 -> Mode.ANALYSIS
                     else -> Mode.TREND
                 }
                 updateModeUI()
@@ -100,6 +100,7 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
         when (currentFragment) {
             is StatisticsTrendFragment -> currentFragment.loadData()
             is StatisticsRankFragment -> currentFragment.loadData()
+            is StatisticsAnalysisFragment -> currentFragment.loadData()
         }
     }
 
@@ -139,6 +140,24 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
                 }
             )
         }
+
+        // 更新分析模式按钮样式
+        mBinding.btnAnalysisMode.apply {
+            setTextColor(
+                if (currentMode == Mode.ANALYSIS) {
+                    ContextCompat.getColor(requireContext(), R.color.accent)
+                } else {
+                    ContextCompat.getColor(requireContext(), R.color.text_primary)
+                }
+            )
+            setBackgroundResource(
+                if (currentMode == Mode.ANALYSIS) {
+                    R.drawable.bg_mode_switch_item_selected
+                } else {
+                    R.drawable.bg_mode_switch_item
+                }
+            )
+        }
     }
 
     private fun setupModeSwitch() {
@@ -155,6 +174,14 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
                 currentMode = Mode.RANK
                 updateModeUI()
                 mBinding.viewPager.currentItem = 1
+            }
+        }
+
+        mBinding.btnAnalysisMode.setOnClickListener {
+            if (currentMode != Mode.ANALYSIS) {
+                currentMode = Mode.ANALYSIS
+                updateModeUI()
+                mBinding.viewPager.currentItem = 2
             }
         }
     }
@@ -183,6 +210,6 @@ class StatisticsFragment : BaseFragment<FragmentStatisticsBinding>() {
     }
 
     private enum class Mode {
-        RANK,TREND
+        TREND, RANK, ANALYSIS
     }
 }

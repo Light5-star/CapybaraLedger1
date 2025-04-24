@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.components.XAxis
@@ -11,6 +12,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.xuhh.capybaraledger.R
 import com.xuhh.capybaraledger.application.App
 import com.xuhh.capybaraledger.data.model.Bill
 import com.xuhh.capybaraledger.databinding.FragmentStatisticsTrendBinding
@@ -166,15 +168,21 @@ class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
             Entry(day.toFloat(), value.toFloat())
         }
 
+        val lineColor = when (currentType) {
+            TYPE_EXPENSE -> ContextCompat.getColor(requireContext(), R.color.chart_expense)
+            TYPE_INCOME -> ContextCompat.getColor(requireContext(), R.color.chart_income)
+            else -> ContextCompat.getColor(requireContext(), R.color.chart_balance)
+        }
+
         val dataSet = LineDataSet(entries, "").apply {
-            color = when (currentType) {
-                TYPE_EXPENSE -> Color.RED
-                TYPE_INCOME -> Color.GREEN
-                else -> Color.BLUE
-            }
+            color = lineColor
+            setCircleColor(lineColor)
             setDrawCircles(true)
+            circleRadius = 3f
+            setDrawCircleHole(false)
             setDrawValues(false)
             lineWidth = 2f
+            mode = LineDataSet.Mode.CUBIC_BEZIER
         }
 
         mBinding.lineChart.data = LineData(dataSet)
@@ -190,9 +198,9 @@ class StatisticsTrendFragment : BaseFragment<FragmentStatisticsTrendBinding>() {
         }
         mBinding.tvMonthAmount.text = String.format("%.2f", monthTotal)
         mBinding.tvMonthAmount.setTextColor(when (currentType) {
-            TYPE_EXPENSE -> Color.RED
-            TYPE_INCOME -> Color.GREEN
-            else -> if (monthTotal >= 0) Color.GREEN else Color.RED
+            TYPE_EXPENSE -> ContextCompat.getColor(requireContext(), R.color.chart_expense)
+            TYPE_INCOME -> ContextCompat.getColor(requireContext(), R.color.chart_income)
+            else -> if (monthTotal >= 0) ContextCompat.getColor(requireContext(), R.color.chart_income) else ContextCompat.getColor(requireContext(), R.color.chart_expense)
         })
     }
 

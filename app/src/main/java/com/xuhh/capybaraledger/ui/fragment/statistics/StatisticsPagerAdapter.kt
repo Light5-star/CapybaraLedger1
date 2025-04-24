@@ -11,12 +11,13 @@ class StatisticsPagerAdapter(
     lifecycle: Lifecycle
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
-    override fun getItemCount(): Int = 2
+    override fun getItemCount(): Int = 3
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> StatisticsTrendFragment()
             1 -> StatisticsRankFragment()
+            2 -> StatisticsAnalysisFragment()
             else -> throw IllegalArgumentException("Invalid position $position")
         }
     }

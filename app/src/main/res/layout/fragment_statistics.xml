@@ -74,6 +74,17 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_primary"
                 android:background="@drawable/bg_mode_switch_item"/>
+
+            <TextView
+                android:id="@+id/btn_analysis_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="12dp"
+                android:gravity="center"
+                android:text="@string/statistics_analysis_mode"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:background="@drawable/bg_mode_switch_item"/>
         </LinearLayout>
     </LinearLayout>
 

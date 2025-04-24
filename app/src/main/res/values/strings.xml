@@ -219,4 +219,7 @@
     <!-- 账本选择器 -->
     <string name="ledger_selector_title">账本选择</string>
     <string name="selected">已选择</string>
+
+    <!-- 新增分析模式字符串 -->
+    <string name="statistics_analysis_mode">分析</string>
 </resources>
