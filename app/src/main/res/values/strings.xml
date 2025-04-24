@@ -222,4 +222,28 @@
 
     <!-- 新增分析模式字符串 -->
     <string name="statistics_analysis_mode">分析</string>
+    
+    <!-- 预测分析相关 -->
+    <string name="prediction_title">智能预测走向</string>
+    <string name="prediction_current">当前支出</string>
+    <string name="prediction_forecast">预测支出</string>
+    <string name="prediction_average">平均支出</string>
+    <string name="prediction_current_date">当前日期</string>
+    <string name="prediction_loading">加载中…</string>
+    <string name="prediction_no_data">本月暂无数据</string>
+    <string name="prediction_no_expense_data">本月暂无支出数据</string>
+    <string name="prediction_no_data_message">本月暂无数据，无法进行预测分析</string>
+    <string name="prediction_no_expense_message">本月暂无支出数据，无法进行预测分析</string>
+    <string name="prediction_load_failed">加载失败: %1$s</string>
+    <string name="prediction_analysis_failed">数据分析异常，请稍后再试</string>
+    <string name="prediction_trend_up">上升</string>
+    <string name="prediction_trend_down">下降</string>
+    <string name="prediction_trend_stable">平稳</string>
+    <string name="prediction_summary_trend">根据历史数据分析，近期支出趋势预计%1$s</string>
+    <string name="prediction_summary_change_rate">，变化幅度约%1$s%%</string>
+    <string name="prediction_summary_current_expense">本月累计支出：¥%1$.2f</string>
+    <string name="prediction_summary_predicted_expense">预计本月总支出：¥%1$.2f</string>
+    <string name="prediction_summary_next_month">预计%1$d月前7天支出：¥%2$.2f</string>
+    <string name="date_day_suffix">日</string>
+    <string name="currency_prefix">¥</string>
 </resources>

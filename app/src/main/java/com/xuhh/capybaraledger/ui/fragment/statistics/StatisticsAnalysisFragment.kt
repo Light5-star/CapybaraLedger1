@@ -57,7 +57,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 granularity = 1f
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
-                        return (value + 1).toInt().toString() + "日"
+                        return (value + 1).toInt().toString() + getString(R.string.date_day_suffix)
                     }
                 }
             }
@@ -67,7 +67,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 axisMinimum = 0f
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
-                        return "¥${value.toInt()}"
+                        return getString(R.string.currency_prefix) + value.toInt()
                     }
                 }
             }
@@ -83,7 +83,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 setDrawInside(false)
             }
             
-            setNoDataText("加载中...")
+            setNoDataText(getString(R.string.prediction_loading))
             setNoDataTextColor(Color.BLACK)
         }
     }
@@ -93,7 +93,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
         if (!isViewCreated) return
         
         mBinding.predictionChart.clear()
-        mBinding.predictionChart.setNoDataText("加载中...")
+        mBinding.predictionChart.setNoDataText(getString(R.string.prediction_loading))
         mBinding.predictionChart.invalidate()
         
         viewLifecycleOwner.lifecycleScope.launch {
@@ -106,9 +106,9 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 val bills = mViewModel.getBillsWithCategoryByTimeRange(ledgerId, startTime, endTime)
                 
                 if (bills.isEmpty()) {
-                    mBinding.predictionChart.setNoDataText("本月暂无数据")
+                    mBinding.predictionChart.setNoDataText(getString(R.string.prediction_no_data))
                     mBinding.predictionChart.invalidate()
-                    mBinding.tvPredictionSummary.text = "本月暂无数据，无法进行预测分析"
+                    mBinding.tvPredictionSummary.text = getString(R.string.prediction_no_data_message)
                     return@launch
                 }
                 
@@ -137,9 +137,9 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 }
                 
                 if (dailyAmounts.all { it == 0f }) {
-                    mBinding.predictionChart.setNoDataText("本月暂无支出数据")
+                    mBinding.predictionChart.setNoDataText(getString(R.string.prediction_no_expense_data))
                     mBinding.predictionChart.invalidate()
-                    mBinding.tvPredictionSummary.text = "本月暂无支出数据，无法进行预测分析"
+                    mBinding.tvPredictionSummary.text = getString(R.string.prediction_no_expense_message)
                     return@launch
                 }
                 
@@ -170,7 +170,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 }
                 
                 // 创建历史数据集
-                val historicalDataSet = LineDataSet(historicalEntries, "当前支出").apply {
+                val historicalDataSet = LineDataSet(historicalEntries, getString(R.string.prediction_current)).apply {
                     val historicalColor = ContextCompat.getColor(requireContext(), R.color.chart_history)
                     color = historicalColor
                     setCircleColor(historicalColor)
@@ -182,7 +182,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 }
                 
                 // 创建预测数据集
-                val predictionDataSet = LineDataSet(predictionEntries, "预测支出").apply {
+                val predictionDataSet = LineDataSet(predictionEntries, getString(R.string.prediction_forecast)).apply {
                     val predictionColor = ContextCompat.getColor(requireContext(), R.color.chart_prediction)
                     color = predictionColor
                     setCircleColor(predictionColor)
@@ -217,7 +217,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                     Entry(0f, avgValue),
                     Entry((dailyAmounts.size + predictions.size - 1).toFloat(), avgValue)
                 )
-                val horizontalLineDataSet = LineDataSet(horizontalLineEntries, "平均支出").apply {
+                val horizontalLineDataSet = LineDataSet(horizontalLineEntries, getString(R.string.prediction_average)).apply {
                     color = ContextCompat.getColor(requireContext(), R.color.text_secondary)
                     lineWidth = 1f
                     setDrawCircles(false)
@@ -231,7 +231,7 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                     Entry(lastDay.toFloat(), 0f),
                     Entry(lastDay.toFloat(), dailyAmounts.maxOrNull()?.times(1.2f) ?: 100f)
                 )
-                val verticalLineDataSet = LineDataSet(verticalLineEntries, "当前日期").apply {
+                val verticalLineDataSet = LineDataSet(verticalLineEntries, getString(R.string.prediction_current_date)).apply {
                     color = ContextCompat.getColor(requireContext(), R.color.text_hint)
                     lineWidth = 1f
                     setDrawCircles(false)
@@ -248,9 +248,9 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
                 // 更新预测总结
                 updatePredictionSummary(predictions, dailyAmounts)
             } catch (e: Exception) {
-                mBinding.predictionChart.setNoDataText("加载失败: ${e.message}")
+                mBinding.predictionChart.setNoDataText(getString(R.string.prediction_load_failed, e.message))
                 mBinding.predictionChart.invalidate()
-                mBinding.tvPredictionSummary.text = "数据加载失败，请稍后再试"
+                mBinding.tvPredictionSummary.text = getString(R.string.prediction_analysis_failed)
             }
         }
     }
@@ -269,9 +269,9 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
             
             // 判断支出趋势
             val trend = when {
-                predictions.last() > predictions.first() * 1.1 -> "上升"
-                predictions.last() < predictions.first() * 0.9 -> "下降"
-                else -> "平稳"
+                predictions.last() > predictions.first() * 1.1 -> getString(R.string.prediction_trend_up)
+                predictions.last() < predictions.first() * 0.9 -> getString(R.string.prediction_trend_down)
+                else -> getString(R.string.prediction_trend_stable)
             }
             
             // 计算变化幅度（使用近5天的平均值与未来5天的平均值比较）
@@ -290,31 +290,25 @@ class StatisticsAnalysisFragment : BaseFragment<FragmentStatisticsAnalysisBindin
             val nextMonth = if (currentMonth == 12) 1 else currentMonth + 1
             
             val summaryText = buildString {
-                append("根据历史数据分析，近期支出趋势预计")
-                append(trend)
+                append(getString(R.string.prediction_summary_trend, trend))
                 if (change != 0) {
-                    append("，变化幅度约")
-                    append(if (change >= 0) "+" else "")
-                    append(change)
-                    append("%")
+                    val changeText = if (change >= 0) "+$change" else "$change"
+                    append(getString(R.string.prediction_summary_change_rate, changeText))
                 }
                 append("。\n\n")
                 
-                append("本月累计支出：¥")
-                append(String.format("%.2f", currentTotal))
+                append(getString(R.string.prediction_summary_current_expense, currentTotal))
                 append("\n")
                 
-                append("预计本月总支出：¥")
-                append(String.format("%.2f", predictedMonthTotal))
+                append(getString(R.string.prediction_summary_predicted_expense, predictedMonthTotal))
                 append("\n")
                 
-                append("预计${nextMonth}月前7天支出：¥")
-                append(String.format("%.2f", nextMonthPrediction))
+                append(getString(R.string.prediction_summary_next_month, nextMonth, nextMonthPrediction))
             }
             
             mBinding.tvPredictionSummary.text = summaryText
         } catch (e: Exception) {
-            mBinding.tvPredictionSummary.text = "数据分析异常，请稍后再试"
+            mBinding.tvPredictionSummary.text = getString(R.string.prediction_analysis_failed)
         }
     }
 
